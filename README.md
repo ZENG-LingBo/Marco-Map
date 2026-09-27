@@ -12,7 +12,6 @@ Historical Chinese maps online: the takeover plan, feature demos and cost estima
 | [docs/01-migration-runbook.md](docs/01-migration-runbook.md) | Ling Bo | step-by-step: project accounts, GitHub transfer, re-deploy, copying 200 GB of tiles to Cloudflare R2, backups |
 | [docs/02-feature-exploration.md](docs/02-feature-exploration.md) | whoever builds on the demo | what the four reference sites really do, what the demo does, the data model, how to plug in Alexia's tiles, upgrade path |
 | [docs/03-cost-estimate.md](docs/03-cost-estimate.md) | budget holder | four scenarios with arithmetic and sources; recommended ≈ US$80 in year one, ≈ US$60 after |
-| [docs/04-email-drafts.md](docs/04-email-drafts.md) | Ling Bo | draft replies to Alexia (handover list) and to Prof. Caboara (cover note); nothing has been sent |
 
 ## The demo
 
@@ -43,4 +42,4 @@ app/       (later) Alexia's application, imported with its history — see runbo
 
 ## Out of scope for this first pass
 
-Touching Alexia's code or bucket (no access yet); sending any e-mail; creating the project accounts (needs Prof. Caboara's decisions); a backend for user-editable annotations (the feature doc names the free tools for that).
+Touching Alexia's code or bucket (no access yet); e-mails to Alexia and Prof. Caboara (drafted outside the repository); creating the project accounts (needs Prof. Caboara's decisions); a backend for user-editable annotations (the feature doc names the free tools for that).

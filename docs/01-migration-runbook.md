@@ -133,7 +133,7 @@ Size matters here: 200 GB (300 GB worst case) should not pass through a laptop o
   ```
   All three are plain files; OpenSeadragon (used in the demo) reads each of them. PMTiles or Cloud-Optimised GeoTIFF are single-file alternatives for later.
 
-## 7. What to ask Alexia for (goes into the e-mail in `04-email-drafts.md`)
+## 7. What to ask Alexia for (once Prof. Caboara has confirmed the project accounts)
 
 1. Repository transfer to the organisation (or a collaborator invite as fallback).
 2. The list of environment variables (names and values, per environment), the build command, root directory, and any custom domain plus who holds its DNS.

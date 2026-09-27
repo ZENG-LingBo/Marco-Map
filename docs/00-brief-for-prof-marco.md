@@ -6,7 +6,7 @@
 
 A visitor opens a map and can zoom into it as far as the scan allows. Numbered markers sit on the places we have written about. Clicking one opens a reading panel beside the map with the **original inscription**, its **translation**, and our **commentary**, with the source underneath. A button turns the sheet over to show the **back of the map** and whatever is written there. A "play" button walks the visitor through the markers in order, and a separate narrative page tells a story that moves the map as you scroll, in the manner of the Leventhal "Map Chat" pages you sent, but with the whole map staying zoomable underneath.
 
-There is a working demonstration of all of this, using two maps that the Library of Congress serves online: Ricci's 1602 world map, and a 1519 Portuguese atlas sheet that has text on both sides. The link is in the covering e-mail.
+There is a working demonstration of all of this, using two maps that the Library of Congress serves online: Ricci's 1602 world map, and a 1519 Portuguese atlas sheet that has text on both sides: https://zeng-lingbo.github.io/Marco-Map/
 
 ## Part A. How the project will be owned, and why
 
@@ -33,7 +33,7 @@ Plain words for the three things one pays for: a **domain name** is the address 
 |---|---|---|---|
 | **Recommended: serviceable and convenient** | **US$80 in the first year, then about US$60** (US$115 / US$90 at 300 GB) | own web address, site hosting, all 144 maps stored with unlimited viewing, a backup copy, all owned by the project, and free tools so your team can edit texts through a web form rather than code | someone on the team (Ling Bo, then a successor) keeps it running; expected effort is small |
 | **Cheapest possible** | **US$35 to 50** | the same site on a free address (`something.pages.dev`), no backup | looks temporary, and no second copy of the images |
-| **Buy a commercial product** (Micrio, the platform behind Oculi Mundi) | **about US$2,400** (€2,220) | a polished editor with vendor support, hosting included | the presentation belongs to the vendor; the front/back and bilingual reading panel from the demo would have to be re-created within their features; the cheaper €960 tier stops at 100 images, fewer than our 144 maps; discounts for academic institutions exist on request |
+| **Buy a commercial product** ([Micrio](https://micr.io/), the platform behind Oculi Mundi; [pricing](https://micr.io/pricing)) | **about US$2,400** (€2,220) | a polished editor with vendor support, hosting included | the presentation belongs to the vendor; the front/back and bilingual reading panel from the demo would have to be re-created within their features; the cheaper €960 tier stops at 100 images, fewer than our 144 maps; discounts for academic institutions exist on request |
 
 **Why not simply keep everything free as it is now?** Because "free" today means personal accounts under one student's name, with a rule of one user and non-commercial use, and a storage allowance the project has already outgrown. Keeping Amazon and Vercel properly would cost about the same as the recommended option (about US$80 a year) while leaving the ownership problem unsolved.
 
@@ -45,7 +45,8 @@ If the lab would rather spend money than staff time, the commercial option is a 
 
 1. **A web address.** Suggestions: something short with "maps" and the project's name; `.com` or `.org` costs about US$10 a year. Or ask HKUST for a `something.ust.hk` name, which is free but tied to university rules.
 2. **Who owns the project e-mail and the card.** Ideally you, with Ling Bo as administrator.
-3. **Build or buy.** Continue with the free viewer in the demo (recommended), or purchase Micrio.
+3. **Build or buy.** Continue with the free viewer in the demo (recommended), or purchase [Micrio](https://micr.io/).
+4. **A look you like.** The demo uses a quiet "library reading room" style. If you browse https://dribbble.com/tags/web-design-inspiration and send me a few designs you like, I will take that as the direction for the site's appearance.
 
 ## What happens next
 
