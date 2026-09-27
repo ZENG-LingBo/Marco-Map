@@ -1,0 +1,204 @@
+{
+  "_comment": "DEMO CONTENT. Regions are pixel rectangles on the Library of Congress / World Digital Library IIIF images. Latin transcriptions were read from the scan for this demo and are illustrative; check them against the BnF edition before publication.",
+  "id": "miller-1519",
+  "title": { "zh": "米勒地圖集 第四葉", "en": "Nautical Atlas of the World (Miller Atlas), folio 4" },
+  "short": { "zh": "米勒地圖集 1519", "en": "Miller Atlas, 1519" },
+  "creator": "Lopo Homem, Pedro Reinel and Jorge Reinel (cartographers); António de Holanda (illuminator); made for King Manuel I of Portugal",
+  "date": "Portugal, 1519",
+  "catalogue": {
+    "repository": "Bibliothèque nationale de France, Département des Cartes et plans (original); digitised copy via Library of Congress / World Digital Library",
+    "reference": "BnF GE DD-683; LoC item 2021668718 (WDL 18560)",
+    "extent": "1 vellum sheet painted on both sides, 42 × 59 cm",
+    "digitised": "IIIF Image API 2, 14,658 × 10,606 px (recto) and 14,529 × 10,386 px (verso)",
+    "credit": "Library of Congress, World Digital Library collection: free to use and reuse. Original at the Bibliothèque nationale de France.",
+    "url": "https://www.loc.gov/item/2021668718/"
+  },
+  "description": "The Miller Atlas is a set of eight richly illuminated maps on six loose vellum sheets, painted on both sides, made in 1519 for Manuel I of Portugal. Folio 4 shows on its recto the Magnus Sinus, the Great Gulf of the Chinese sea inherited from Ptolemy, and on its verso the China Sea with the Moluccas, the other half of the verso carrying only the rhumb-line network. It is included in this demo because it has a genuine front and back, each with its own Latin inscriptions.",
+  "views": [
+    {
+      "id": "recto",
+      "label": { "zh": "正面", "en": "Front (folio 4 recto)" },
+      "tileSource": "https://tile.loc.gov/image-services/iiif/service:gdc:gdcwdl:wd:l_:18:56:0:wdl_18560:T0000001/info.json",
+      "width": 14658,
+      "height": 10606
+    },
+    {
+      "id": "verso",
+      "label": { "zh": "背面", "en": "Back (folio 4 verso)" },
+      "tileSource": "https://tile.loc.gov/image-services/iiif/service:gdc:gdcwdl:wd:l_:18:56:0:wdl_18560:T0000002/info.json",
+      "width": 14529,
+      "height": 10386
+    }
+  ],
+  "annotations": [
+    {
+      "id": "golfus-cartouche",
+      "view": "recto",
+      "category": "cartouche",
+      "label": { "zh": "「中國海大灣」題記", "en": "Cartouche: the great gulf of the Chinese sea" },
+      "region": { "x": 7600, "y": 7350, "w": 3300, "h": 1150 },
+      "text": {
+        "lang": "la",
+        "original": "Hic est magnus golfus Chinarum maris, in quo sunt insule magne in quibus omnium diuitiarum mercantiarumque genera tractantur.",
+        "translation": "Here is the great gulf of the sea of the Chinese, in which there are great islands where every kind of riches and merchandise is traded.",
+        "commentary": "A gold-framed cartouche in the lower right of the recto. Written a decade before Portuguese ships reached the Chinese coast in numbers, it describes the South China Sea by hearsay as a place of islands and trade. The same cartouche shows through the vellum on the back of the sheet (see the verso annotations).",
+        "source": [
+          "Library of Congress, item 2021668718, folio 4 recto.",
+          "Alfredo Pinheiro Marques, The Miller Atlas (Barcelona: M. Moleiro, 2006) — commentary volume of the facsimile."
+        ]
+      }
+    },
+    {
+      "id": "magnus-sinus",
+      "view": "recto",
+      "category": "toponym",
+      "label": { "zh": "大灣 Magnus Sinus", "en": "Magnus Sinus" },
+      "region": { "x": 6100, "y": 3550, "w": 850, "h": 380 },
+      "text": {
+        "lang": "la",
+        "original": "MAGNVS SINVS",
+        "translation": "The Great Gulf.",
+        "commentary": "Ptolemy's Magnus Sinus, the great bay east of the Golden Chersonese, survived into Portuguese charts as the name of the Gulf of Thailand and the South China Sea. The label floats among the ships in the middle of the gulf.",
+        "source": [
+          "Library of Congress, item 2021668718, folio 4 recto, centre."
+        ]
+      }
+    },
+    {
+      "id": "griffin",
+      "view": "recto",
+      "category": "illustration",
+      "label": { "zh": "獅鷲", "en": "The griffin" },
+      "region": { "x": 700, "y": 1700, "w": 2200, "h": 1400 },
+      "text": {
+        "lang": "la",
+        "original": "(no text)",
+        "translation": "",
+        "commentary": "António de Holanda's griffin guards the interior of the mainland at the upper left, among castles, forests and banners naming regions such as Mantole and Candiu. An illustration annotation carries no original text; the reading panel simply hides the empty tabs.",
+        "source": [
+          "Library of Congress, item 2021668718, folio 4 recto, upper left."
+        ]
+      }
+    },
+    {
+      "id": "equinoctial",
+      "view": "recto",
+      "category": "toponym",
+      "label": { "zh": "赤道 Circulus equinoccialis", "en": "Circulus equinoccialis" },
+      "region": { "x": 4700, "y": 9330, "w": 6800, "h": 300 },
+      "text": {
+        "lang": "la",
+        "original": "CIRCVLVS EQVINOCCIALIS",
+        "translation": "The equinoctial circle (the equator).",
+        "commentary": "The equator runs along the bottom edge in red; the Tropic of Cancer (Circulus Cancri) crosses the gulf higher up. Lines of the graticule are worth annotating on early maps because their presence and spacing date the chart's sources.",
+        "source": [
+          "Library of Congress, item 2021668718, folio 4 recto, lower edge."
+        ]
+      }
+    },
+    {
+      "id": "chinarum-insule",
+      "view": "verso",
+      "category": "cartouche",
+      "label": { "zh": "「中國諸島」題記", "en": "Cartouche: Chinarum insule" },
+      "region": { "x": 7640, "y": 2290, "w": 2830, "h": 880 },
+      "text": {
+        "lang": "la",
+        "original": "Chinarum insule.\nIn hijs insulis magna vis auri et argenti effoditur ac preter tritici et aliarum frugum copiam, piper, cinamomum, gariophili, sandali, muscate nuces omniumque aromatum genus habunde nascitur ac singulis ferme reges imperant.",
+        "translation": "Islands of the Chinese. In these islands a great quantity of gold and silver is dug up, and besides an abundance of wheat and other grains, pepper, cinnamon, cloves, sandalwood, nutmegs and every kind of spice grow in plenty; and almost every one of them is ruled by its own king.",
+        "commentary": "The heading is in red, the body in brown ink. The 'islands of the Chinese' are the spice islands of the eastern archipelago, credited with the wealth Portugal was sailing to reach. This is the text on the back of the sheet: the front/back switch above the map is what makes it reachable.",
+        "source": [
+          "Library of Congress, item 2021668718, folio 4 verso, upper centre."
+        ]
+      }
+    },
+    {
+      "id": "moluccas",
+      "view": "verso",
+      "category": "toponym",
+      "label": { "zh": "摩鹿加群島", "en": "Maluco insule (the Moluccas)" },
+      "region": { "x": 9000, "y": 4100, "w": 920, "h": 240 },
+      "text": {
+        "lang": "la",
+        "original": "MALVCO INSVLE",
+        "translation": "The Moluccan islands.",
+        "commentary": "A banner names the Moluccas, the clove islands that were the object of the Magellan expedition sailing that same year. The islands around it are painted in gold, green, red and blue without individual names.",
+        "source": [
+          "Library of Congress, item 2021668718, folio 4 verso."
+        ]
+      }
+    },
+    {
+      "id": "blank-half",
+      "view": "verso",
+      "category": "illustration",
+      "label": { "zh": "空白半葉與透印", "en": "Blank half with show-through" },
+      "region": { "x": 450, "y": 450, "w": 6700, "h": 9500 },
+      "text": {
+        "lang": "la",
+        "original": "(no text)",
+        "translation": "",
+        "commentary": "The left half of the verso carries only the rhumb-line network. Under raking light the recto's cartouche and coastlines show through the vellum in mirror image (visible towards the lower right of this half). Physical evidence like this is only presentable if the viewer can show the back of the sheet as easily as the front.",
+        "source": [
+          "Library of Congress, item 2021668718, folio 4 verso, left half."
+        ]
+      }
+    }
+  ],
+  "story": {
+    "title": { "zh": "一葉兩面", "en": "One sheet, two faces" },
+    "byline": "Demo narrative. The text is illustrative and written for this prototype.",
+    "sections": [
+      {
+        "view": "recto",
+        "fit": "all",
+        "heading": { "zh": "正面", "en": "The front" },
+        "body": [
+          "Folio 4 of the Miller Atlas was painted on both sides of a single vellum sheet in 1519. The front shows the Great Gulf of the Chinese sea as Portuguese cartographers imagined it before their ships had reached China."
+        ]
+      },
+      {
+        "annotation": "golfus-cartouche",
+        "heading": { "zh": "題記", "en": "The cartouche" },
+        "body": [
+          "A gold-framed inscription explains the gulf: great islands where every kind of riches is traded."
+        ]
+      },
+      {
+        "annotation": "magnus-sinus",
+        "heading": { "zh": "大灣", "en": "Magnus Sinus" },
+        "body": [
+          "Ptolemy's name for the bay east of the Golden Chersonese floats among the ships."
+        ]
+      },
+      {
+        "annotation": "griffin",
+        "heading": { "zh": "獅鷲", "en": "The griffin" },
+        "body": [
+          "The illuminator fills the unknown interior with castles, forests and a griffin."
+        ]
+      },
+      {
+        "annotation": "chinarum-insule",
+        "heading": { "zh": "背面", "en": "Turn the sheet over" },
+        "body": [
+          "The viewer switches to the verso. Its own cartouche describes the islands of the Chinese and their spices; almost every island, it says, has its own king."
+        ]
+      },
+      {
+        "annotation": "moluccas",
+        "heading": { "zh": "摩鹿加", "en": "The Moluccas" },
+        "body": [
+          "The clove islands that Magellan set out to reach in the same year are named on a banner."
+        ]
+      },
+      {
+        "annotation": "blank-half",
+        "heading": { "zh": "透印", "en": "Show-through" },
+        "body": [
+          "The other half of the back is blank except for rhumb lines, and the front's cartouche shows through the vellum in mirror image. A viewer that can turn the sheet over makes this kind of evidence part of the reading."
+        ]
+      }
+    ]
+  }
+}

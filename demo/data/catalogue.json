@@ -1,0 +1,39 @@
+{
+  "_comment": "Catalogue of maps shown by the demo. Each entry points to a map file in this folder. Add a map by adding an entry here and a JSON file next to it.",
+  "maps": [
+    {
+      "id": "ricci-1602",
+      "file": "data/ricci-1602.json",
+      "title": {
+        "zh": "坤輿萬國全圖",
+        "en": "Complete Map of the Myriad Countries of the World"
+      },
+      "creator": "Matteo Ricci 利瑪竇, with Li Zhizao 李之藻",
+      "date": "Beijing, 1602",
+      "repository": "Library of Congress, Geography and Map Division",
+      "thumbnail": "https://tile.loc.gov/image-services/iiif/service:gmd:gmd3:g3200:g3200:ex000006Zb/full/!400,400/0/default.jpg",
+      "summary": "Woodblock print on six sheets, the third edition of Ricci's Chinese world map. Chinese inscriptions throughout: title, prefaces, cosmological diagrams and hundreds of place names.",
+      "short": {
+        "zh": "利瑪竇 1602",
+        "en": "Ricci world map, 1602"
+      }
+    },
+    {
+      "id": "miller-1519",
+      "file": "data/miller-1519.json",
+      "title": {
+        "zh": "米勒地圖集 第四葉",
+        "en": "Nautical Atlas of the World (Miller Atlas), folio 4"
+      },
+      "creator": "Lopo Homem, Pedro and Jorge Reinel; illuminated by António de Holanda",
+      "date": "Portugal, 1519",
+      "repository": "Bibliothèque nationale de France (via Library of Congress / World Digital Library)",
+      "thumbnail": "https://tile.loc.gov/image-services/iiif/service:gdc:gdcwdl:wd:l_:18:56:0:wdl_18560:T0000001/full/!400,400/0/default.jpg",
+      "summary": "A vellum sheet painted on both sides: the recto shows the Magnus Sinus (the Great Gulf of the Chinese sea), the verso the China Sea with the Moluccas. Latin cartouches on both faces.",
+      "short": {
+        "zh": "米勒地圖集 1519",
+        "en": "Miller Atlas, 1519"
+      }
+    }
+  ]
+}
