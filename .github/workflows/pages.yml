@@ -1,5 +1,6 @@
 # Publishes demo/ to GitHub Pages.
-# One-time setup by a repository admin: Settings → Pages → Build and deployment → Source: "GitHub Actions".
+# Runs on pushes to main and on demand (Actions tab → "Run workflow"). The configure-pages step
+# enables Pages for the repository on first use, so no manual Settings → Pages step is needed.
 name: Deploy demo to GitHub Pages
 
 on:
@@ -26,6 +27,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: demo
