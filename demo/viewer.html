@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Map viewer · Marco-Map demo</title>
+  <meta name="description" content="Deep-zoom map viewer with annotated original text, translation and commentary; front/back switch; guided tour.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Noto+Serif+TC:wght@400;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="css/demo.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/openseadragon/6.1.1/openseadragon.min.js"></script>
+</head>
+<body class="viewer-page">
+  <header class="topbar">
+    <a class="brand" href="index.html">Marco-Map · demo</a>
+    <div class="title">
+      <span class="zh" id="titleZh" lang="zh"></span>
+      <span class="en" id="titleEn"></span>
+    </div>
+    <div class="spacer"></div>
+    <div class="controls">
+      <select id="mapSelect" class="select" aria-label="Choose a map"></select>
+      <div class="btn-group" id="viewSwitch" role="group" aria-label="Side of the map"></div>
+      <div class="btn-group" role="group" aria-label="Guided tour">
+        <button class="btn" id="tourPrev" type="button" title="Previous annotation (,)">‹ Prev</button>
+        <button class="btn" id="tourPlay" type="button" aria-pressed="false" title="Play the tour (p)">Play tour</button>
+        <button class="btn" id="tourNext" type="button" title="Next annotation (.)">Next ›</button>
+      </div>
+      <span class="sans muted" id="tourStatus" aria-live="polite"></span>
+      <button class="btn" id="about" type="button">About this map</button>
+      <button class="btn" id="indexToggle" type="button" title="Show or hide the index (i)">Index</button>
+      <button class="btn" id="helpToggle" type="button" aria-expanded="false" title="Keyboard shortcuts (?)">?</button>
+    </div>
+  </header>
+
+  <div class="workspace" id="workspace">
+    <aside class="index" id="index" aria-label="Annotation index">
+      <div class="index-head">
+        <h2>Annotations</h2>
+        <select id="filter" class="select" aria-label="Filter by category"></select>
+      </div>
+      <ol class="index-list" id="indexList"></ol>
+      <div class="index-foot">Numbers match the pins on the map. Press <kbd>E</kbd> for author mode to add a region.</div>
+    </aside>
+
+    <main class="stage" id="stage">
+      <div id="osd" aria-label="Zoomable map"></div>
+      <div class="stage-note" id="stageNote"></div>
+      <div class="author-hint hidden" id="authorHint">Author mode: drag a rectangle on the map to copy its region. Press <kbd>E</kbd> or <kbd>Esc</kbd> to leave.</div>
+      <div class="tooltip hidden" id="tooltip" role="tooltip"></div>
+      <div class="toast" id="toast" aria-live="polite"></div>
+      <div class="stage-bar">
+        <div class="btn-group" role="group" aria-label="Zoom">
+          <button class="btn" id="zoomIn" type="button" title="Zoom in">+</button>
+          <button class="btn" id="zoomOut" type="button" title="Zoom out">−</button>
+          <button class="btn" id="zoomHome" type="button" title="Fit the whole map (h)">Fit</button>
+        </div>
+        <button class="btn" id="labelsToggle" type="button" aria-pressed="false" title="Draw the English label over each region (l)">Translated labels</button>
+        <label><span>Opacity</span><input type="range" id="labelOpacity" min="0.3" max="1" step="0.05" value="0.92" aria-label="Label opacity"></label>
+        <span class="spacer"></span>
+        <span id="credit"></span>
+      </div>
+    </main>
+
+    <aside class="reading" id="reading" aria-label="Reading panel">
+      <div class="reading-inner" id="readingInner"><p class="placeholder">Loading…</p></div>
+    </aside>
+  </div>
+
+  <div class="help hidden" id="help" role="dialog" aria-label="Keyboard shortcuts">
+    <h3>Keyboard</h3>
+    <table>
+      <tr><td><kbd>,</kbd> <kbd>.</kbd></td><td>previous / next annotation</td></tr>
+      <tr><td><kbd>p</kbd></td><td>play or pause the guided tour</td></tr>
+      <tr><td><kbd>l</kbd></td><td>translated labels on the map</td></tr>
+      <tr><td><kbd>e</kbd></td><td>author mode: drag to copy a region</td></tr>
+      <tr><td><kbd>i</kbd></td><td>show or hide the index</td></tr>
+      <tr><td><kbd>h</kbd></td><td>fit the whole map</td></tr>
+      <tr><td><kbd>Esc</kbd></td><td>close panel, help or author mode</td></tr>
+      <tr><td>mouse</td><td>drag to pan, wheel or double-click to zoom</td></tr>
+    </table>
+    <p class="muted" style="margin-top:.6rem">Links carry the map, side and annotation, so a URL can be sent to a colleague.</p>
+  </div>
+
+  <script src="js/viewer.js"></script>
+</body>
+</html>

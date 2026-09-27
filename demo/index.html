@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Marco-Map demo · Catalogue</title>
+  <meta name="description" content="Prototype of a historical-map reading site: deep zoom, annotated original text with translation and commentary, front and back of the sheet, guided tours and narrative mode.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Noto+Serif+TC:wght@400;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="css/demo.css">
+</head>
+<body>
+  <div class="page">
+    <header class="masthead">
+      <div class="kicker">Marco-Map · prototype · September 2026</div>
+      <h1>Reading historical maps: a demonstration</h1>
+      <p class="lede">Two maps served straight from library image servers, shown with the features Prof. Caboara asked about: deep zoom, numbered annotations that open the original inscription beside its translation and commentary, a switch between the front and back of the sheet, a guided tour, and a narrative mode. Everything here is plain HTML and one JSON file per map.</p>
+    </header>
+
+    <h2 class="section-title">Maps</h2>
+    <ol class="catalogue-list" id="catalogueList"><li class="placeholder">Loading catalogue…</li></ol>
+
+    <h2 class="section-title">What each page demonstrates</h2>
+    <table class="feature-table">
+      <thead><tr><th>Feature</th><th>Where</th><th>Reference site it answers</th></tr></thead>
+      <tbody>
+        <tr><td>Deep zoom on the library's own IIIF tiles (no tiles hosted by us)</td><td>Viewer, Narrative</td><td>Oculi Mundi (Micrio)</td></tr>
+        <tr><td>Numbered pins and region outlines; index with category filter</td><td>Viewer</td><td>Leventhal Manchu Map Chat (SVG hotspots)</td></tr>
+        <tr><td>Reading panel: 原文 original · translation · commentary · source; vertical Chinese</td><td>Viewer</td><td>Leventhal trilingual popups</td></tr>
+        <tr><td>Front / back of the sheet (verso text), or the two halves of a large map</td><td>Viewer, Narrative</td><td>New (asked for by Prof. Caboara)</td></tr>
+        <tr><td>Guided tour: previous / next / play</td><td>Viewer</td><td>Oculi Mundi tours</td></tr>
+        <tr><td>Translated labels drawn in place on the map, with opacity</td><td>Viewer</td><td>New</td></tr>
+        <tr><td>Scrollytelling narrative that flies the map to each passage</td><td>Narrative</td><td>Leventhal "Remapping the World in Japan"</td></tr>
+        <tr><td>Links that carry map, side and annotation; author mode to add regions without code</td><td>Viewer</td><td>New</td></tr>
+      </tbody>
+    </table>
+
+    <h2 class="section-title">Notes</h2>
+    <p>Transcriptions and translations are illustrative and were prepared for this prototype; they must be checked before publication. Images: Library of Congress, Geography and Map Division, and the World Digital Library collection (original of the Miller Atlas at the Bibliothèque nationale de France), all free to use and reuse.</p>
+    <p>The pages need to be served over HTTP (for example <span class="sans">python3 -m http.server</span> in this folder, or GitHub Pages); they load the map data with <span class="sans">fetch</span>.</p>
+
+    <footer class="footer">Marco-Map · HKUST · demo built with OpenSeadragon 6.1 · <a href="https://github.com/ZENG-LingBo/Marco-Map">source and documentation on GitHub</a></footer>
+  </div>
+
+  <script>
+    (function () {
+      var list = document.getElementById('catalogueList');
+      function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+      fetch('data/catalogue.json').then(function (r) { return r.json(); }).then(function (cat) {
+        list.innerHTML = '';
+        cat.maps.forEach(function (m) {
+          var li = el('li');
+          var img = el('img'); img.src = m.thumbnail; img.alt = m.title.en; img.loading = 'lazy';
+          var figure = el('a'); figure.href = 'viewer.html#map=' + m.id; figure.appendChild(img);
+          li.appendChild(figure);
+          var body = el('div');
+          var zh = el('div', 'zh', m.title.zh); zh.lang = 'zh';
+          body.appendChild(zh);
+          body.appendChild(el('div', 'en', m.title.en));
+          body.appendChild(el('div', 'meta', m.creator + ' · ' + m.date + ' · ' + m.repository));
+          body.appendChild(el('p', 'desc', m.summary));
+          var links = el('div', 'links');
+          var v = el('a', 'btn', 'Open the viewer'); v.href = 'viewer.html#map=' + m.id;
+          var s = el('a', 'btn', 'Read the narrative'); s.href = 'story.html?map=' + m.id;
+          links.appendChild(v); links.appendChild(s);
+          body.appendChild(links);
+          li.appendChild(body);
+          list.appendChild(li);
+        });
+      }).catch(function (err) {
+        list.innerHTML = '<li class="placeholder">Could not load data/catalogue.json (' + err.message + '). Serve this folder over HTTP.</li>';
+      });
+    })();
+  </script>
+</body>
+</html>
