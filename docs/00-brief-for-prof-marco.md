@@ -8,6 +8,8 @@ A visitor opens a map and can zoom into it as far as the scan allows. Numbered m
 
 There is a working demonstration of all of this, using two maps that the Library of Congress serves online: Ricci's 1602 world map, and a 1519 Portuguese atlas sheet that has text on both sides: https://zeng-lingbo.github.io/Marco-Map/
 
+The demonstration is a prototype: two sample maps and illustrative text, showing what the site can do rather than work done on the project's own maps.
+
 ## Part A. How the project will be owned, and why
 
 **Where things are today.** The first version of the site lives in Alexia's personal accounts: her code account (GitHub), her hosting account (Vercel) and her storage account (Amazon). That is normal for a first prototype, but it is like keeping the lab notebook at a student's flat. When a student graduates, the notebook goes with them, or the password is lost.
@@ -50,8 +52,10 @@ If the lab would rather spend money than staff time, the commercial option is a 
 
 ## What happens next
 
-- Weeks 1–2: set up the project accounts; receive the code and images from Alexia; copy the images to the new storage (this happens computer-to-computer, not through anyone's laptop).
-- Weeks 3–4: move the existing site into the project's accounts under the new address; first maps with annotations added using the demo's features.
-- From week 5: the team adds annotations map by map through the web form; the narrative pages are written as essays are ready.
+In this order, once you have decided the points above:
+
+1. Set up the project accounts, and receive the code and the images from Alexia. How quickly this goes depends on her availability; the images are copied computer to computer, not through anyone's laptop.
+2. Move the existing site into the project's accounts under the new address.
+3. The long part, which is scholarly rather than technical: checking the transcriptions and annotating the maps one by one through the web form, and writing the narrative pages as essays are ready.
 
 Nothing in the plan is irreversible. The images stay in a standard format that any viewer can read, and the texts live in plain files that can be moved anywhere.
