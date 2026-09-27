@@ -45,7 +45,7 @@ If the lab would rather spend money than staff time, the commercial option is a 
 
 ## What we need from you
 
-1. **A web address.** Suggestions: something short with "maps" and the project's name; `.com` or `.org` costs about US$10 a year. Or ask HKUST for a `something.ust.hk` name, which is free but tied to university rules.
+1. **A web address.** Send me two or three names you like, in order of preference; something short, with "maps" and the project's name, works well. I will check availability and price at [Cloudflare Registrar](https://www.cloudflare.com/products/registrar/), which sells addresses at cost (about US$10 a year for `.com` or `.org`) and is the same account that will host the site, and register the winner under the project account, so the address belongs to the project from day one. The alternative is to ask HKUST for a `something.ust.hk` name, which is free but tied to university rules.
 2. **Who owns the project e-mail and the card.** Ideally you, with Ling Bo as administrator.
 3. **Build or buy.** Continue with the free viewer in the demo (recommended), or purchase [Micrio](https://micr.io/).
 4. **A look you like.** The demo uses a quiet "library reading room" style. If you browse https://dribbble.com/tags/web-design-inspiration and send me a few designs you like, I will take that as the direction for the site's appearance.
