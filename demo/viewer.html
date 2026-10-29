@@ -23,7 +23,7 @@
     <div class="controls">
       <select id="mapSelect" class="select" aria-label="Choose a map"></select>
       <div class="btn-group" id="viewSwitch" role="group" aria-label="Side of the map"></div>
-      <div class="btn-group" role="group" aria-label="Guided tour">
+      <div class="btn-group" id="tourGroup" role="group" aria-label="Guided tour">
         <button class="btn" id="tourPrev" type="button" title="Previous annotation (,)">‹ Prev</button>
         <button class="btn" id="tourPlay" type="button" aria-pressed="false" title="Play the tour (p)">Play tour</button>
         <button class="btn" id="tourNext" type="button" title="Next annotation (.)">Next ›</button>
@@ -58,7 +58,7 @@
           <button class="btn" id="zoomHome" type="button" title="Fit the whole map (h)">Fit</button>
         </div>
         <button class="btn" id="labelsToggle" type="button" aria-pressed="false" title="Draw the English label over each region (l)">Translated labels</button>
-        <label><span>Opacity</span><input type="range" id="labelOpacity" min="0.3" max="1" step="0.05" value="0.92" aria-label="Label opacity"></label>
+        <label class="opacity-ctl"><span>Opacity</span><input type="range" id="labelOpacity" min="0.3" max="1" step="0.05" value="0.92" aria-label="Label opacity"></label>
         <span class="spacer"></span>
         <span id="credit"></span>
       </div>

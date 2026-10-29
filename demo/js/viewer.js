@@ -9,8 +9,19 @@
   var OSD_IMAGES = 'https://cdnjs.cloudflare.com/ajax/libs/openseadragon/6.1.1/images/';
   var CATEGORY = {
     cartouche: 'Cartouche', inscription: 'Inscription', toponym: 'Place name',
-    diagram: 'Diagram', colophon: 'Colophon', illustration: 'Illustration'
+    diagram: 'Diagram', colophon: 'Colophon', illustration: 'Illustration',
+    cardinal: 'Cardinal point', passage: 'Passage'
   };
+  /* Maps from the existing site's catalogue (data/collection.json) are addressed as #map=tartary-<n>. */
+  var COLLECTION_PREFIX = 'tartary-';
+  /* Its tiles are in an S3 bucket that sends the CORS header (and Vary: Origin) only when a request
+     asks for it. A browser that has cached a tile fetched without CORS, as the existing site fetches
+     them, can reuse that copy for this viewer's CORS request, which then fails (seen in a browser that
+     does not partition its cache by site; most current browsers do). A query string of our
+     own gives these requests their own cache entries; OpenSeadragon carries a query on the .dzi URL
+     over to every tile URL, and S3 ignores it. Not needed once the tiles are served with the CORS
+     header on every response (docs/01-migration-runbook.md, step 5). */
+  var COLLECTION_TILE_QUERY = '?viewer=marco-map';
 
   var state = {
     catalogue: null, map: null, viewId: null, viewer: null,
@@ -28,6 +39,20 @@
     if (text != null) e.textContent = text;
     return e;
   }
+  /* The original-language form of a title or label: Chinese (zh) or Latin (la). Collection maps have none. */
+  function origOf(obj) {
+    if (obj && obj.zh) return { text: obj.zh, lang: 'zh' };
+    if (obj && obj.la) return { text: obj.la, lang: 'la' };
+    return null;
+  }
+  function origEl(tag, obj) {
+    var o = origOf(obj);
+    if (!o) return null;
+    var e = el(tag, o.lang, o.text);
+    e.lang = o.lang;
+    return e;
+  }
+  function both(obj, sep) { var o = origOf(obj); return o ? o.text + sep + obj.en : obj.en; }
   function byId(id) { return state.map.annotations.filter(function (a) { return a.id === id; })[0]; }
   function viewById(id) { return state.map.views.filter(function (v) { return v.id === id; })[0]; }
 
@@ -62,22 +87,20 @@
       'mapSelect', 'workspace', 'index', 'stage', 'credit'
     ].forEach(function (id) { state.els[id] = document.getElementById(id); });
 
-    fetch('data/catalogue.json').then(function (r) { return r.json(); }).then(function (cat) {
+    Promise.all([
+      fetch('data/catalogue.json').then(function (r) { return r.json(); }),
+      fetch('data/collection.json').then(function (r) { return r.json(); })
+    ]).then(function (res) {
+      var cat = res[0], coll = res[1];
       state.catalogue = cat;
       var h = readHash();
       var qs = new URLSearchParams(location.search);
       var wanted = h.get('map') || qs.get('map') || cat.maps[0].id;
-      var entry = cat.maps.filter(function (m) { return m.id === wanted; })[0] || cat.maps[0];
-      cat.maps.forEach(function (m) {
-        var o = el('option', null, (m.short && m.short.en) || m.title.en);
-        o.value = m.id;
-        if (m.id === entry.id) o.selected = true;
-        state.els.mapSelect.appendChild(o);
-      });
-      state.els.mapSelect.addEventListener('change', function () {
-        location.hash = 'map=' + state.els.mapSelect.value;
-        location.reload();
-      });
+      var entry = cat.maps.filter(function (m) { return m.id === wanted; })[0];
+      var record = entry ? null : coll.maps.filter(function (m) { return COLLECTION_PREFIX + m.n === wanted; })[0];
+      if (!entry && !record) entry = cat.maps[0];
+      fillMapSelect(cat, coll, entry ? entry.id : wanted);
+      if (record) { loadMap(mapFromCollection(record, coll), h); return; }
       return fetch(entry.file).then(function (r) { return r.json(); }).then(function (map) { loadMap(map, h); });
     }).catch(function (err) {
       state.els.readingInner.innerHTML = '<p class="placeholder">Could not load the demo data (' + err.message +
@@ -85,12 +108,60 @@
     });
   }
 
+  function fillMapSelect(cat, coll, current) {
+    var sel = state.els.mapSelect;
+    function add(parent, id, text) {
+      var o = el('option', null, text);
+      o.value = id;
+      if (id === current) o.selected = true;
+      parent.appendChild(o);
+    }
+    var g1 = el('optgroup'); g1.label = 'Annotated';
+    cat.maps.forEach(function (m) { add(g1, m.id, (m.short && m.short.en) || m.title.en); });
+    var g2 = el('optgroup'); g2.label = 'Collection (' + coll.maps.length + ' maps)';
+    coll.maps.forEach(function (m) { add(g2, COLLECTION_PREFIX + m.n, collectionLabel(m)); });
+    sel.appendChild(g1); sel.appendChild(g2);
+    sel.addEventListener('change', function () {
+      location.hash = 'map=' + sel.value;
+      location.reload();
+    });
+  }
+  function collectionLabel(m) {
+    var t = m.title || 'Untitled';
+    return m.year + ' ' + m.authors.join(', ') + ' · ' + (t.length > 50 ? t.slice(0, 48) + '…' : t);
+  }
+
+  /* A collection record carries only what the existing site's catalogue holds: no annotations. */
+  function mapFromCollection(m, coll) {
+    var source = m.sources.join(', ');
+    return {
+      id: COLLECTION_PREFIX + m.n,
+      title: { en: m.title || 'Untitled' },
+      creator: m.authors.join(', '),
+      date: m.year,
+      description: 'From the TARTARY Project collection (no. ' + m.n + '), as catalogued on the project\'s first site. ' +
+        'This map has no transcription or translation yet.',
+      catalogue: {
+        repository: source,
+        reference: 'TARTARY Project, map ' + m.n,
+        credit: 'Image: ' + (source || 'source not recorded') + ', via the TARTARY Project',
+        url: coll.source + '/maps/' + m.n
+      },
+      views: [{ id: 'map', label: { en: 'Map' }, tileSource: m.dzi + COLLECTION_TILE_QUERY }],
+      annotations: []
+    };
+  }
+
   function loadMap(map, h) {
     state.map = map;
     map.annotations.forEach(function (a, i) { a.num = i + 1; });
     document.title = map.title.en + ' · Marco-Map demo';
-    state.els.titleZh.textContent = map.title.zh;
+    var t = origOf(map.title);
+    state.els.titleZh.textContent = t ? t.text : '';
+    state.els.titleZh.lang = t ? t.lang : '';
+    state.els.titleZh.className = t ? t.lang : 'hidden';
     state.els.titleEn.textContent = map.title.en;
+    document.body.classList.toggle('no-annotations', !map.annotations.length);
     state.els.credit.textContent = map.catalogue.credit;
     renderViewSwitch();
     renderIndex();
@@ -146,7 +217,7 @@
     if (!view) return;
     state.viewId = id;
     $$('#viewSwitch .btn').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.view === id)); });
-    state.els.stageNote.textContent = view.label.zh + ' · ' + view.label.en + (view.note ? ' — ' + view.note : '');
+    state.els.stageNote.textContent = both(view.label, ' · ') + (view.note ? ' — ' + view.note : '');
     state.viewer.clearOverlays();
     state.viewer.open(view.tileSource);
   }
@@ -253,8 +324,8 @@
     eyebrow.appendChild(close);
     root.appendChild(eyebrow);
 
-    var h2 = el('h2', 'zh', a.label.zh); h2.lang = 'zh';
-    root.appendChild(h2);
+    var h2 = origEl('h2', a.label);
+    if (h2) root.appendChild(h2);
     root.appendChild(el('h3', 'en', a.label.en));
 
     var actions = el('div', 'actions');
@@ -271,6 +342,7 @@
     var hasOriginal = t.original && t.original !== '(no text)';
     var tabs = [];
     if (hasOriginal) tabs.push({ key: 'original', label: t.lang === 'zh' ? '原文 Original' : 'Original' });
+    if (t.expanded) tabs.push({ key: 'expanded', label: 'Expanded' });
     if (t.translation) tabs.push({ key: 'translation', label: 'Translation' });
     if (t.commentary) tabs.push({ key: 'commentary', label: 'Commentary' });
     if (t.source && t.source.length) tabs.push({ key: 'source', label: 'Source' });
@@ -307,6 +379,13 @@
       p.appendChild(orig);
       panels.original = p; root.appendChild(p);
     }
+    if (t.expanded) {
+      var pe = el('div', 'tabpanel'); pe.hidden = true;
+      pe.appendChild(el('p', 'note', 'Abbreviations written out; spelling as on the map.'));
+      var ex = el('div', 'original latin', t.expanded); ex.lang = t.lang;
+      pe.appendChild(ex);
+      panels.expanded = pe; root.appendChild(pe);
+    }
     if (t.translation) {
       var p2 = el('div', 'tabpanel'); p2.hidden = true;
       t.translation.split('\n').forEach(function (line) { p2.appendChild(el('p', 'translation', line)); });
@@ -329,7 +408,7 @@
       $$('button', tablist).forEach(function (x) { x.setAttribute('aria-selected', String(x.dataset.tab === 'commentary')); });
     }
     root.appendChild(catalogueBlock());
-    root.appendChild(el('p', 'note', 'Demo content: transcriptions and translations are illustrative and must be checked before publication.'));
+    if (state.map.notice) root.appendChild(el('p', 'note', state.map.notice));
   }
 
   function catalogueBlock() {
@@ -360,13 +439,16 @@
     close.addEventListener('click', closePanel);
     eyebrow.appendChild(close);
     root.appendChild(eyebrow);
-    var h2 = el('h2', 'zh', state.map.title.zh); h2.lang = 'zh';
-    root.appendChild(h2);
+    var h2 = origEl('h2', state.map.title);
+    if (h2) root.appendChild(h2);
     root.appendChild(el('h3', 'en', state.map.title.en));
-    root.appendChild(el('p', 'sans muted', state.map.creator + ' · ' + state.map.date));
+    root.appendChild(el('p', 'sans muted', [state.map.creator, state.map.date].filter(Boolean).join(' · ')));
     state.map.description.split('\n').forEach(function (line) { root.appendChild(el('p', null, line)); });
-    root.appendChild(el('p', 'note', 'Select a numbered pin on the map or an entry in the index to read its original text, translation and commentary. Use the buttons above the map to turn the sheet over or to follow the guided tour.'));
+    if (state.map.annotations.length) {
+      root.appendChild(el('p', 'note', 'Select a numbered pin on the map or an entry in the index to read its original text, translation and commentary. Use the buttons above the map to turn the sheet over or to follow the guided tour.'));
+    }
     root.appendChild(catalogueBlock());
+    if (state.map.notice) root.appendChild(el('p', 'note', state.map.notice));
     state.current = null;
     markActive();
     openPanel();
@@ -388,8 +470,8 @@
         li.dataset.id = a.id; li.dataset.category = a.category; li.tabIndex = 0;
         li.appendChild(el('span', 'num', String(a.num)));
         var body = el('div');
-        var zh = el('div', 'zh', a.label.zh); zh.lang = 'zh';
-        body.appendChild(zh);
+        var o = origEl('div', a.label);
+        if (o) body.appendChild(o);
         var en = el('div', 'en', a.label.en);
         en.appendChild(el('span', 'cat', CATEGORY[a.category] || a.category));
         body.appendChild(en);
@@ -455,7 +537,7 @@
     var wrap = state.els.viewSwitch;
     wrap.innerHTML = '';
     state.map.views.forEach(function (v) {
-      var b = el('button', 'btn', v.label.zh + ' ' + v.label.en.replace(/\s*\(.*\)$/, '').replace(/:.*$/, ''));
+      var b = el('button', 'btn', both({ zh: v.label.zh, la: v.label.la, en: v.label.en.replace(/\s*\(.*\)$/, '').replace(/:.*$/, '') }, ' '));
       b.type = 'button'; b.dataset.view = v.id; b.title = v.label.en;
       b.addEventListener('click', function () {
         if (state.viewId === v.id) return;
@@ -548,8 +630,8 @@
   function showTooltip(a, pin) {
     var tip = state.els.tooltip;
     tip.innerHTML = '';
-    var zh = el('span', 'zh', a.label.zh); zh.lang = 'zh';
-    tip.appendChild(zh);
+    var o = origEl('span', a.label);
+    if (o) tip.appendChild(o);
     tip.appendChild(document.createTextNode(a.label.en));
     tip.classList.remove('hidden');
     var sr = state.els.stage.getBoundingClientRect();
