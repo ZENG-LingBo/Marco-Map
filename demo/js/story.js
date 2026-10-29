@@ -19,9 +19,10 @@
   var viewById = function (id) { return map.views.filter(function (v) { return v.id === id; })[0]; };
 
   fetch('data/catalogue.json').then(function (r) { return r.json(); }).then(function (cat) {
-    var entry = cat.maps.filter(function (m) { return m.id === qs.get('map'); })[0] || cat.maps[0];
+    var stories = cat.maps.filter(function (m) { return m.story; });
+    var entry = stories.filter(function (m) { return m.id === qs.get('map'); })[0] || stories[0];
     var sel = document.getElementById('storySelect');
-    cat.maps.forEach(function (m) {
+    stories.forEach(function (m) {
       var o = el('option', null, (m.short && m.short.en) || m.title.en); o.value = m.id; if (m.id === entry.id) o.selected = true; sel.appendChild(o);
     });
     sel.addEventListener('change', function () { location.search = '?map=' + sel.value; });

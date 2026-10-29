@@ -117,6 +117,7 @@ Size matters here: 200 GB (300 GB worst case) should not pass through a laptop o
    ```bash
    npx wrangler r2 bucket cors set marco-tiles --file cors.json
    ```
+   A bucket's CORS rule only answers requests that carry an `Origin` header, and the plain responses carry no `Vary: Origin`. A browser or CDN that has cached a tile fetched without CORS then hands that copy to a CORS request, which fails. *Seen on 29 Oct 2026 with Alexia's S3 bucket, in a browser that does not partition its cache by site; the demo works around it with a query string of its own on tile URLs.* So also add `Access-Control-Allow-Origin: *` to **every** response on `tiles.<domain>` (Cloudflare → Rules → Transform Rules → response header), so any cached copy is valid for both kinds of request.
 2. ☐ Custom domain `tiles.<domain>` on the bucket (R2 → Settings → Custom domains). The `r2.dev` URL is rate-limited and for development only *(verified)*.
 3. ☐ Immutable caching: tiles never change, so set `Cache-Control: public, max-age=31536000, immutable` (rclone: `--header-upload "Cache-Control: public, max-age=31536000, immutable"` during the sync, or a Cloudflare cache rule on `tiles.<domain>`).
 4. ☐ Point the app's tile base URL at `https://tiles.<domain>/…` and check one map end-to-end.
