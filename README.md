@@ -22,6 +22,24 @@ Historical Chinese maps online: the takeover plan, feature demos and cost estima
 - `index.html` — front page: the annotated maps, then the 144-map collection with search
 - `viewer.html` — deep zoom · numbered annotations · reading panel with 原文 original / translation / commentary / source · front/back switch · guided tour · translated-label layer · deep links · author mode (`E`) to copy a region
 - `story.html` — narrative mode: scrolling flies the map to each passage and turns the sheet over when needed
+- `review/` — review mode for specialists, behind a password (below): labels the model was least sure of come first; each opens at its place on the scan beside the machine reading, to accept, correct (text, number, box) or dispute with a comment. Buttons insert the marks of the transcription rules (titlo, raised letters, pre-reform letters, long s). Decisions are kept in the browser and exported as a corrections file
+
+**Review workflow.**
+1. A specialist opens `review/`, enters the reviewers' password, types their name, works through the queue and presses **Export**.
+2. Their file goes into `corrections/<map id>/`.
+3. `python scripts/apply_corrections.py demo/data/<map>.json corrections/<map id>/*.json` writes the decisions into the map file. The viewer then shows "Checked by …", "Corrected by …" or "Disputed by …" on each label, and "not yet checked" on the rest.
+4. The corrections files are the record. Run the script again after rebuilding a map file. Any decision made against an older machine reading is skipped and listed, to be checked again.
+
+For now nothing is stored on a server: the file goes back by e-mail. A shared database with e-mail login (Cloudflare Access, free for up to 50 users) can replace that step once the project's Cloudflare account exists (runbook §1).
+
+**The password.**
+- GitHub Pages can't check a password on the server, so the review page is published encrypted. `demo/review/index.html` holds only ciphertext: AES-256-GCM, with the key derived from the password by PBKDF2-SHA256 over 600,000 rounds.
+- The browser decrypts it once the right password is entered, and remembers it for that tab only.
+- The source is in `review-src/`, which `.gitignore` keeps out of this public repository; otherwise the tool could be read here. The encrypted page contains the full source, so it can be recovered by decrypting it with the password. After editing it, or to change the password, run `python scripts/build_review.py --password-file <file outside the repository>`.
+- It is one shared password, not personal accounts. Anyone can download the ciphertext and guess offline, so keep the password long and random.
+- The map data and tiles the tool opens are the public ones. Personal logins come with Cloudflare Access.
+
+**Maps that aren't public.** `demo/private/` is in `.gitignore` and is never published. `scripts/build_remezov.py` builds the Remezov ethnographic map there, because its image rights are not cleared. Review mode lists it only when run locally: `python -m http.server` in `demo/`, then `/review/`.
 
 Run it locally (the pages fetch their data, so they need a web server):
 

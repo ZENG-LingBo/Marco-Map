@@ -39,10 +39,11 @@
     if (text != null) e.textContent = text;
     return e;
   }
-  /* The original-language form of a title or label: Chinese (zh) or Latin (la). Collection maps have none. */
+  /* The original-language form of a title or label: Chinese (zh), Latin (la) or Russian (ru). Collection maps have none. */
   function origOf(obj) {
     if (obj && obj.zh) return { text: obj.zh, lang: 'zh' };
     if (obj && obj.la) return { text: obj.la, lang: 'la' };
+    if (obj && obj.ru) return { text: obj.ru, lang: 'ru' };
     return null;
   }
   function origEl(tag, obj) {
@@ -328,6 +329,9 @@
     if (h2) root.appendChild(h2);
     root.appendChild(el('h3', 'en', a.label.en));
 
+    // set by scripts/apply_corrections.py from the specialists' review
+    if (state.map.reviewed || a.review) root.appendChild(reviewBadge(a.review));
+
     var actions = el('div', 'actions');
     var zoomBtn = el('button', 'btn', 'Zoom to region'); zoomBtn.type = 'button';
     zoomBtn.addEventListener('click', function () { fitRegion(a); });
@@ -409,6 +413,13 @@
     }
     root.appendChild(catalogueBlock());
     if (state.map.notice) root.appendChild(el('p', 'note', state.map.notice));
+  }
+
+  var REVIEW_TEXT = { accepted: 'Checked by ', corrected: 'Corrected by ', added: 'Added by ', disputed: 'Disputed by ' };
+  function reviewBadge(r) {
+    if (!r) return el('p', 'review-badge', 'Machine reading, not yet checked by a specialist.');
+    var text = (REVIEW_TEXT[r.status] || 'Reviewed by ') + r.by + ', ' + String(r.at).slice(0, 10) + (r.comment ? ': ' + r.comment : '.');
+    return el('p', 'review-badge st-' + r.status, text);
   }
 
   function catalogueBlock() {

@@ -144,6 +144,7 @@ def main(out_dir):
             "view": "map",
             "category": cat,
             "tour": tour,
+            "confidence": b["confidence"],
             "label": {"la": incipit(b["expanded"]), "en": label},
             "region": {"x": x, "y": y, "w": w, "h": h},
             "text": {
@@ -171,6 +172,7 @@ def main(out_dir):
             "view": "text",
             "category": "passage",
             "tour": True,
+            "confidence": "high",  # the model marked no word on the page uncertain
             "label": {"la": incipit(e), "en": label},
             "region": {"x": x, "y": y, "w": w, "h": h},
             "text": {

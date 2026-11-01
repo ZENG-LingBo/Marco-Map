@@ -46,6 +46,7 @@
    "view": "map",
    "category": "cartouche",
    "tour": true,
+   "confidence": "high",
    "label": {
     "la": "TARTARIAE SIVE MAGNI CHAMI REGNI tÿpus",
     "en": "Title"
@@ -73,6 +74,7 @@
    "view": "map",
    "category": "cartouche",
    "tour": true,
+   "confidence": "high",
    "label": {
     "la": "Continet haec tabula omnem Tartariam, cum …",
     "en": "What the map shows"
@@ -100,6 +102,7 @@
    "view": "map",
    "category": "inscription",
    "tour": true,
+   "confidence": "high",
    "label": {
     "la": "Hic magnus prouentus calami aromatici.",
     "en": "Sweet flag by the Volga"
@@ -127,6 +130,7 @@
    "view": "map",
    "category": "toponym",
    "tour": false,
+   "confidence": "high",
    "label": {
     "la": "Mar de Bachu, olim Mare Caspium, et Hÿrcanum.",
     "en": "The Caspian Sea"
@@ -154,6 +158,7 @@
    "view": "map",
    "category": "inscription",
    "tour": true,
+   "confidence": "high",
    "label": {
     "la": "Hic Rubini gemmae reperiuntur.",
     "en": "Rubies"
@@ -181,6 +186,7 @@
    "view": "map",
    "category": "inscription",
    "tour": true,
+   "confidence": "high",
    "label": {
     "la": "Samarchand. magni Tamber[lanis] quondam sedes.",
     "en": "Samarkand"
@@ -208,6 +214,7 @@
    "view": "map",
    "category": "inscription",
    "tour": true,
+   "confidence": "high",
    "label": {
     "la": "TVRCHESTAN Regio vnde cismontani 10. Tribuum …",
     "en": "Turchestan and the Ten Tribes"
@@ -235,6 +242,7 @@
    "view": "map",
    "category": "inscription",
    "tour": true,
+   "confidence": "high",
    "label": {
     "la": "TARTARIA, Quae Sarmatiam Asiaticam, & …",
     "en": "Tartaria"
@@ -262,6 +270,7 @@
    "view": "map",
    "category": "inscription",
    "tour": true,
+   "confidence": "high",
    "label": {
     "la": "Magnus Cham,(quod lingua Tartarorum …",
     "en": "The Great Khan"
@@ -289,6 +298,7 @@
    "view": "map",
    "category": "inscription",
    "tour": true,
+   "confidence": "medium",
    "label": {
     "la": "Mons Althaÿ, vbi omnes Tartarÿ imperatores …",
     "en": "Mount Althay, burial place of the khans"
@@ -316,6 +326,7 @@
    "view": "map",
    "category": "inscription",
    "tour": true,
+   "confidence": "medium",
    "label": {
     "la": "Tabor seu Tybur, vmbilicariaue Totarorum …",
     "en": "Tabor, and a king who came to France"
@@ -343,6 +354,7 @@
    "view": "map",
    "category": "inscription",
    "tour": true,
+   "confidence": "high",
    "label": {
     "la": "Danorum siue Danitarum horda id est deiectio …",
     "en": "Horde of the Danites"
@@ -370,6 +382,7 @@
    "view": "map",
    "category": "inscription",
    "tour": true,
+   "confidence": "low",
    "label": {
     "la": "Nepthalitarum horda, Nepthalitae, …",
     "en": "Horde of the Naphtalites"
@@ -397,6 +410,7 @@
    "view": "map",
    "category": "inscription",
    "tour": true,
+   "confidence": "high",
    "label": {
     "la": "Insula falconum, Marci Pauli Veneti.",
     "en": "Island of falcons"
@@ -424,6 +438,7 @@
    "view": "map",
    "category": "inscription",
    "tour": true,
+   "confidence": "high",
    "label": {
     "la": "OCEANVS SCYTHICVS dulcis est Plinio auctore, …",
     "en": "The Scythian Ocean"
@@ -451,6 +466,7 @@
    "view": "map",
    "category": "inscription",
    "tour": true,
+   "confidence": "medium",
    "label": {
     "la": "ARSARETH. Hic 10 Tribus secessere, et …",
     "en": "Arsareth, where the Ten Tribes went"
@@ -478,6 +494,7 @@
    "view": "map",
    "category": "inscription",
    "tour": true,
+   "confidence": "medium",
    "label": {
     "la": "ARGON. Christianorum olim regnum nomine …",
     "en": "Argon and Prester John"
@@ -505,6 +522,7 @@
    "view": "map",
    "category": "inscription",
    "tour": true,
+   "confidence": "high",
    "label": {
     "la": "TANGVT. Hic artem imprimendi ante mille, vt …",
     "en": "Tangut and printing"
@@ -532,6 +550,7 @@
    "view": "map",
    "category": "inscription",
    "tour": true,
+   "confidence": "high",
    "label": {
     "la": "His montibus Rhabarbarum prouenit",
     "en": "Rhubarb"
@@ -559,6 +578,7 @@
    "view": "map",
    "category": "inscription",
    "tour": true,
+   "confidence": "high",
    "label": {
     "la": "Cambalu metropolis, habet 28. millia in …",
     "en": "Cambalu (Beijing)"
@@ -586,6 +606,7 @@
    "view": "map",
    "category": "inscription",
    "tour": true,
+   "confidence": "high",
    "label": {
     "la": "Pons marmoreus 300. passuum.",
     "en": "A marble bridge"
@@ -613,6 +634,7 @@
    "view": "map",
    "category": "inscription",
    "tour": true,
+   "confidence": "high",
    "label": {
     "la": "His montibus eruuntur lapides, quibus utuntur …",
     "en": "Stones burned for fuel"
@@ -640,6 +662,7 @@
    "view": "map",
    "category": "inscription",
    "tour": true,
+   "confidence": "high",
    "label": {
     "la": "Quinsai id est ciuitas celi",
     "en": "Quinsai (Hangzhou)"
@@ -667,6 +690,7 @@
    "view": "map",
    "category": "inscription",
    "tour": true,
+   "confidence": "high",
    "label": {
     "la": "Japan insula, a Marco Paulo Veneto zipangri …",
     "en": "Japan"
@@ -694,6 +718,7 @@
    "view": "map",
    "category": "inscription",
    "tour": true,
+   "confidence": "high",
    "label": {
     "la": "Meaco insule ciuitas primaria",
     "en": "Meaco (Kyoto)"
@@ -721,6 +746,7 @@
    "view": "map",
    "category": "toponym",
    "tour": false,
+   "confidence": "high",
    "label": {
     "la": "Minas de plata.",
     "en": "Silver mines"
@@ -748,6 +774,7 @@
    "view": "map",
    "category": "toponym",
    "tour": true,
+   "confidence": "medium",
    "label": {
     "la": "AMERICAE VEL NOVI ORBIS PARS",
     "en": "Part of America"
@@ -775,6 +802,7 @@
    "view": "map",
    "category": "inscription",
    "tour": false,
+   "confidence": "high",
    "label": {
     "la": "4 Esdrae Capitulo 13.",
     "en": "4 Esdras 13"
@@ -802,6 +830,7 @@
    "view": "map",
    "category": "toponym",
    "tour": false,
+   "confidence": "high",
    "label": {
     "la": "BARGV regio palustris",
     "en": "Bargu, a marshy region"
@@ -829,6 +858,7 @@
    "view": "map",
    "category": "toponym",
    "tour": false,
+   "confidence": "low",
    "label": {
     "la": "Imaus mons qu[?] & Caucasus.",
     "en": "Mount Imaus"
@@ -856,6 +886,7 @@
    "view": "map",
    "category": "toponym",
    "tour": false,
+   "confidence": "medium",
    "label": {
     "la": "SOLVTVDINES VASTAE",
     "en": "Vast wildernesses"
@@ -883,6 +914,7 @@
    "view": "map",
    "category": "toponym",
    "tour": false,
+   "confidence": "high",
    "label": {
     "la": "Volga, et Hedel, olim Rha fluuius.",
     "en": "River Volga"
@@ -910,6 +942,7 @@
    "view": "map",
    "category": "toponym",
    "tour": false,
+   "confidence": "high",
    "label": {
     "la": "Tauris olim Ecbatana",
     "en": "Tauris (Tabriz)"
@@ -937,6 +970,7 @@
    "view": "map",
    "category": "toponym",
    "tour": false,
+   "confidence": "high",
    "label": {
     "la": "Tabin Promontorium Plin[ii].",
     "en": "Cape Tabin"
@@ -964,6 +998,7 @@
    "view": "map",
    "category": "toponym",
    "tour": false,
+   "confidence": "medium",
    "label": {
     "la": "Meon fluuius Marci Pauli",
     "en": "River Meon"
@@ -991,6 +1026,7 @@
    "view": "map",
    "category": "toponym",
    "tour": false,
+   "confidence": "high",
    "label": {
     "la": "Brior fluuius aurifer.",
     "en": "River Brior"
@@ -1018,6 +1054,7 @@
    "view": "map",
    "category": "cardinal",
    "tour": false,
+   "confidence": "high",
    "label": {
     "la": "SEPTENTRIO.",
     "en": "North"
@@ -1045,6 +1082,7 @@
    "view": "map",
    "category": "cardinal",
    "tour": false,
+   "confidence": "high",
    "label": {
     "la": "OCCIDENS",
     "en": "West"
@@ -1072,6 +1110,7 @@
    "view": "map",
    "category": "cardinal",
    "tour": false,
+   "confidence": "high",
    "label": {
     "la": "ORIENS",
     "en": "East"
@@ -1099,6 +1138,7 @@
    "view": "map",
    "category": "colophon",
    "tour": false,
+   "confidence": "high",
    "label": {
     "la": "Cum Priuilegio.",
     "en": "Privilege"
@@ -1126,6 +1166,7 @@
    "view": "text",
    "category": "passage",
    "tour": true,
+   "confidence": "high",
    "label": {
     "la": "TARTARIA siue MAGNI CHAMI IMPERIVM.",
     "en": "Heading"
@@ -1153,6 +1194,7 @@
    "view": "text",
    "category": "passage",
    "tour": true,
+   "confidence": "high",
    "label": {
     "la": "QVI Tartaros describere velit, multas …",
     "en": "What Tartary is"
@@ -1180,6 +1222,7 @@
    "view": "text",
    "category": "passage",
    "tour": true,
+   "confidence": "high",
    "label": {
     "la": "In hordas diuiduntur, quæ vox illis …",
     "en": "Hordes, looks and food"
@@ -1207,6 +1250,7 @@
    "view": "text",
    "category": "passage",
    "tour": true,
+   "confidence": "high",
    "label": {
     "la": "Et quoniam incertis vagantur sedibus, …",
     "en": "Steering by the Pole Star"
@@ -1234,6 +1278,7 @@
    "view": "text",
    "category": "passage",
    "tour": true,
+   "confidence": "high",
    "label": {
     "la": "Tartaros, eorumq́ue mores & ritus …",
     "en": "Further reading"
