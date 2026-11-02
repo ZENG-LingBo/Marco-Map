@@ -72,13 +72,18 @@
     end.appendChild(back);
     text.appendChild(end);
 
+    // cooperative gestures: the map sits in a scrolling page, so on a touch screen one finger
+    // scrolls the narrative and two fingers move the map (the wheel only scrolls the page)
     viewer = OpenSeadragon({
       id: 'osd', prefixUrl: OSD_IMAGES, showNavigationControl: false, showNavigator: false,
       animationTime: 1.8, springStiffness: 5, visibilityRatio: 0.5, minZoomImageRatio: 0.6, maxZoomPixelRatio: 3,
+      cooperativeGestures: true,
       gestureSettingsMouse: { clickToZoom: false, dblClickToZoom: true, scrollToZoom: false },
       gestureSettingsTouch: { clickToZoom: false },
       crossOriginPolicy: 'Anonymous', ajaxWithCredentials: false
     });
+    // the narrative moves the map, so a reader scrolling over it is not told how to move it
+    viewer.addHandler('canvas-cooperative-gesture', function (e) { e.preventDefaultAction = true; });
 
     var mobile = window.matchMedia('(max-width: 768px)').matches;
     var io = new IntersectionObserver(function (entries) {
@@ -102,7 +107,7 @@
     pad = pad == null ? 0.4 : pad;
     var rect = viewer.viewport.imageToViewportRectangle(
       new OpenSeadragon.Rect(r.x - r.w * pad, r.y - r.h * pad, r.w * (1 + 2 * pad), r.h * (1 + 2 * pad)));
-    viewer.viewport.fitBounds(rect, false);
+    viewer.viewport.fitBoundsWithConstraints(rect, false);
   }
   function showRegion(r) {
     var rect = viewer.viewport.imageToViewportRectangle(new OpenSeadragon.Rect(r.x, r.y, r.w, r.h));

@@ -38,13 +38,17 @@ LOCK_PAGE = """<!doctype html>
   <meta name="robots" content="noindex">
   <title>Review · Marco-Map</title>
   <link rel="icon" href="data:,">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Noto+Serif+TC:wght@400;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/demo.css">
   <style>
-    .lock {{ max-width: 26rem; margin: 18vh auto 0; padding: 0 1.25rem; }}
+    /* padding, not margin: a top margin would push the full-height body down and make the page scroll */
+    .lock {{ max-width: 26rem; margin: 0 auto; padding: 18vh 1.25rem 0; }}
     .lock h1 {{ font-size: var(--fs-3); margin-bottom: 0.6rem; }}
     .lock p {{ color: var(--ink-2); }}
     .lock form {{ display: flex; gap: 0.5rem; margin-top: 1rem; }}
-    .lock input {{ flex: 1; font-family: var(--sans); font-size: var(--fs-1); padding: 0.5rem 0.6rem; border: 1px solid var(--rule-2); background: #fffdf8; border-radius: 2px; }}
+    .lock input {{ flex: 1; font-family: var(--sans); font-size: 1rem; padding: 0.5rem 0.6rem; border: 1px solid var(--rule-2); background: #fffdf8; border-radius: 2px; }}
     .lock .msg {{ font-family: var(--sans); font-size: var(--fs-0); color: var(--accent-2); min-height: 1.4em; margin-top: 0.6rem; }}
   </style>
 </head>

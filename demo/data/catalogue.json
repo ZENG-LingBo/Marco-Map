@@ -49,24 +49,6 @@
       }
     },
     {
-      "id": "ricci-1602",
-      "file": "data/ricci-1602.json",
-      "title": {
-        "zh": "坤輿萬國全圖",
-        "en": "Complete Map of the Myriad Countries of the World"
-      },
-      "creator": "Matteo Ricci 利瑪竇, with Li Zhizao 李之藻",
-      "date": "Beijing, 1602",
-      "repository": "Library of Congress, Geography and Map Division",
-      "thumbnail": "https://tile.loc.gov/image-services/iiif/service:gmd:gmd3:g3200:g3200:ex000006Zb/full/!400,400/0/default.jpg",
-      "summary": "Feature demonstration, September 2026: transcriptions and translations are illustrative. Woodblock print on six sheets, the third edition of Ricci's Chinese world map. Chinese inscriptions throughout: title, prefaces, cosmological diagrams and hundreds of place names.",
-      "short": {
-        "zh": "利瑪竇 1602",
-        "en": "Ricci world map, 1602"
-      },
-      "story": true
-    },
-    {
       "id": "miller-1519",
       "file": "data/miller-1519.json",
       "title": {

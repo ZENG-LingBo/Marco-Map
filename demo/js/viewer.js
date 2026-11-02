@@ -22,11 +22,13 @@
      over to every tile URL, and S3 ignores it. Not needed once the tiles are served with the CORS
      header on every response (docs/01-migration-runbook.md, step 5). */
   var COLLECTION_TILE_QUERY = '?viewer=marco-map';
+  /* The phone layout (the same query is in css/demo.css): narrow screens, and phones held sideways. */
+  var PHONE = '(max-width: 768px), (max-height: 500px) and (pointer: coarse)';
 
   var state = {
     catalogue: null, map: null, viewId: null, viewer: null,
     current: null, filter: 'all', labelsOn: false, labelOpacity: 0.92,
-    tour: { list: [], index: -1, timer: null },
+    tour: { list: [], timer: null },
     author: { on: false, tracker: null, start: null, box: null },
     pending: null, vertical: false, els: {}
   };
@@ -89,7 +91,7 @@
   /* ---------- Boot ---------- */
   function boot() {
     ['osd', 'indexList', 'filter', 'readingInner', 'viewSwitch', 'tourPrev', 'tourNext', 'tourPlay',
-      'tourStatus', 'labelsToggle', 'labelOpacity', 'zoomIn', 'zoomOut', 'zoomHome', 'help', 'helpToggle',
+      'tourStatus', 'labelsToggle', 'labelOpacity', 'zoomIn', 'zoomOut', 'zoomHome', 'help', 'helpToggle', 'helpClose',
       'about', 'indexToggle', 'tooltip', 'toast', 'authorHint', 'stageNote', 'titleZh', 'titleEn',
       'mapSelect', 'workspace', 'index', 'stage', 'credit'
     ].forEach(function (id) { state.els[id] = document.getElementById(id); });
@@ -104,10 +106,12 @@
       state.catalogue = cat;
       var h = readHash();
       var qs = new URLSearchParams(location.search);
-      var wanted = h.get('map') || qs.get('map') || cat.maps[0].id;
+      // with no map named, open the first published map, not a local one listed ahead of it
+      var first = res[0].maps[0];
+      var wanted = h.get('map') || qs.get('map') || first.id;
       var entry = cat.maps.filter(function (m) { return m.id === wanted; })[0];
       var record = entry ? null : coll.maps.filter(function (m) { return COLLECTION_PREFIX + m.n === wanted; })[0];
-      if (!entry && !record) entry = cat.maps[0];
+      if (!entry && !record) entry = first;
       fillMapSelect(cat, coll, entry ? entry.id : wanted);
       if (record) { loadMap(mapFromCollection(record, coll), h); return; }
       return fetch(entry.file).then(function (r) { return r.json(); }).then(function (map) { loadMap(map, h); });
@@ -288,7 +292,20 @@
     var r = a.region, pad = 0.35;
     var rect = state.viewer.viewport.imageToViewportRectangle(
       new OpenSeadragon.Rect(r.x - r.w * pad, r.y - r.h * pad, r.w * (1 + 2 * pad), r.h * (1 + 2 * pad)));
-    state.viewer.viewport.fitBounds(rect, false);
+    // within the zoom limits, so a small region does not zoom in past the image's resolution
+    state.viewer.viewport.fitBoundsWithConstraints(rect, false);
+  }
+
+  /* Opening the reading panel narrows (on phones, shortens) the stage. OpenSeadragon applies a
+     resize on its next frame by jumping to the view it was heading for, so a fit started before
+     then would not animate, and on phones would be fitted to the taller stage. Fit after it. */
+  function afterStageResize(resizing, fn) {
+    if (!resizing) { fn(); return; }
+    var done = false;
+    function run() { if (!done) { done = true; fn(); } }
+    // 'after-resize' is raised before OpenSeadragon restores its centre and zoom, hence the timeout
+    state.viewer.addOnceHandler('after-resize', function () { setTimeout(run, 0); });
+    setTimeout(run, 300);
   }
 
   /* ---------- Selection ---------- */
@@ -303,12 +320,11 @@
       return;
     }
     state.current = a;
+    revealInFilter(a);
     markActive();
     renderReading(a);
-    openPanel();
-    if (opts.zoom !== false) fitRegion(a);
-    var i = state.tour.list.indexOf(a);
-    if (i >= 0) state.tour.index = i;
+    var resizing = openPanel();
+    if (opts.zoom !== false) afterStageResize(resizing, function () { fitRegion(a); });
     updateTourStatus();
     writeHash({ a: id });
     var li = $('.index-list li[data-id="' + id + '"]');
@@ -469,13 +485,21 @@
     }
     root.appendChild(catalogueBlock());
     if (state.map.notice) root.appendChild(el('p', 'note', state.map.notice));
+    stopTour();
     state.current = null;
     markActive();
+    updateTourStatus();
+    writeHash({});
     openPanel();
   }
 
-  function openPanel() { state.els.workspace.classList.remove('panel-closed'); }
-  function closePanel() { state.els.workspace.classList.add('panel-closed'); }
+  /* Returns true when the panel was closed, i.e. when opening it resizes the stage. */
+  function openPanel() {
+    var ws = state.els.workspace, wasClosed = ws.classList.contains('panel-closed');
+    ws.classList.remove('panel-closed');
+    return wasClosed;
+  }
+  function closePanel() { stopTour(); state.els.workspace.classList.add('panel-closed'); }
 
   /* ---------- Index ---------- */
   function renderIndex() {
@@ -516,32 +540,70 @@
   function quietCats() { return state.map.quiet || []; }
   /* A map may rename a category for its own content ("categories": {"toponym": "Peoples, regions and seas"}). */
   function catName(c) { return (state.map.categories && state.map.categories[c]) || CATEGORY[c] || c; }
+  /* How the filter shows an annotation. "away": a quiet category that is not the one chosen, so its
+     pin, box and label are not drawn at all. "off": another category is chosen, so its pin is dimmed
+     and its box, label and index entry are hidden. */
+  function filterState(a) {
+    var f = state.filter;
+    return { away: quietCats().indexOf(a.category) >= 0 && f !== a.category, off: f !== 'all' && f !== a.category };
+  }
   function applyFilter() {
-    var f = state.filter, quiet = quietCats();
-    $$('.index-list li[data-id]').forEach(function (li) {
-      li.classList.toggle('is-hidden', f !== 'all' ? li.dataset.category !== f : quiet.indexOf(li.dataset.category) >= 0);
+    var states = {};
+    state.map.annotations.forEach(function (a) { states[a.id] = filterState(a); });
+    $$('.index-list li[data-id], .pin, .region, .label-ovl').forEach(function (n) {
+      var s = states[n.dataset.id];
+      if (!s) return;
+      if (n.classList.contains('pin')) {
+        n.classList.toggle('is-dim', s.off && !s.away);
+        n.classList.toggle('hidden', s.away);
+      } else if (n.tagName === 'LI') {
+        n.classList.toggle('is-hidden', s.off || s.away);
+      } else {
+        n.classList.toggle('hidden', s.off || s.away || (n.classList.contains('label-ovl') && !state.labelsOn));
+      }
     });
-    state.map.annotations.forEach(function (a) {
-      var off = f !== 'all' && a.category !== f;
-      var away = f === 'all' && quiet.indexOf(a.category) >= 0;
-      $$('.pin[data-id="' + a.id + '"]').forEach(function (p) { p.classList.toggle('is-dim', off); p.classList.toggle('hidden', away); });
-      $$('.region[data-id="' + a.id + '"], .label-ovl[data-id="' + a.id + '"]').forEach(function (n) {
-        n.classList.toggle('hidden', off || (n.classList.contains('label-ovl') && !state.labelsOn));
-      });
+    // a side's heading only when some of its entries are listed
+    $$('.index-list li.index-group').forEach(function (g) {
+      var any = false;
+      for (var n = g.nextElementSibling; n && !n.classList.contains('index-group'); n = n.nextElementSibling) {
+        if (!n.classList.contains('is-hidden')) { any = true; break; }
+      }
+      g.classList.toggle('hidden', !any);
     });
+  }
+  /* The annotation being read is always drawn and listed. One the filter hides or dims (opened from
+     a link, the tour or a dimmed pin) changes the filter: to its category if that is a quiet one,
+     otherwise to all categories. */
+  function revealInFilter(a) {
+    var s = filterState(a);
+    if (!s.away && !s.off) return;
+    state.filter = quietCats().indexOf(a.category) >= 0 ? a.category : 'all';
+    state.els.filter.value = state.filter;
+    applyFilter();
   }
 
   /* ---------- Tour ---------- */
   function buildTour() {
     state.tour.list = state.map.annotations.filter(function (a) { return a.tour !== false; });
-    state.tour.index = -1;
     updateTourStatus();
   }
+  /* Steps from the annotation being read, so the tour follows a pin chosen on the map or in the
+     index. From one that is not a stop it goes to the nearest stop in map order; with nothing
+     selected it starts on the side being shown. */
   function tourStep(dir) {
-    var n = state.tour.list.length;
+    var list = state.tour.list, n = list.length, cur = state.current, i;
     if (!n) return;
-    state.tour.index = ((state.tour.index + dir) % n + n) % n;
-    select(state.tour.list[state.tour.index].id, { zoom: true });
+    if (cur && list.indexOf(cur) >= 0) {
+      i = list.indexOf(cur) + dir;
+    } else if (cur) {
+      for (i = 0; i < n && list[i].num < cur.num; i++);
+      if (dir < 0) i -= 1;
+    } else {
+      var here = list.filter(function (a) { return a.view === state.viewId; });
+      if (!here.length) here = list;
+      i = list.indexOf(dir > 0 ? here[0] : here[here.length - 1]);
+    }
+    select(list[(i % n + n) % n].id, { zoom: true });
   }
   function playTour() {
     if (state.tour.timer) { stopTour(); return; }
@@ -557,14 +619,15 @@
     state.els.tourPlay.setAttribute('aria-pressed', 'false');
   }
   function updateTourStatus() {
-    var n = state.tour.list.length;
-    state.els.tourStatus.textContent = state.tour.index >= 0 ? (state.tour.index + 1) + ' / ' + n : n + ' stops';
+    var n = state.tour.list.length, i = state.current ? state.tour.list.indexOf(state.current) : -1;
+    state.els.tourStatus.textContent = i >= 0 ? (i + 1) + ' / ' + n : n + ' stops';
   }
 
   /* ---------- View switch ---------- */
   function renderViewSwitch() {
     var wrap = state.els.viewSwitch;
     wrap.innerHTML = '';
+    wrap.classList.toggle('hidden', state.map.views.length < 2);  // nothing to switch between
     state.map.views.forEach(function (v) {
       var b = el('button', 'btn', both({ zh: v.label.zh, la: v.label.la, en: v.label.en.replace(/\s*\(.*\)$/, '').replace(/:.*$/, '') }, ' '));
       b.type = 'button'; b.dataset.view = v.id; b.title = v.label.en;
@@ -672,12 +735,18 @@
   function toggleHelp(force) {
     var h = state.els.help;
     var show = force != null ? force : h.classList.contains('hidden');
+    // just below the top bar, whose height depends on how many rows its controls wrap onto
+    if (show) h.style.top = ($('.topbar').getBoundingClientRect().bottom + 8) + 'px';
     h.classList.toggle('hidden', !show);
     state.els.helpToggle.setAttribute('aria-expanded', String(show));
   }
   function toggleIndex() {
-    if (window.matchMedia('(max-width: 768px)').matches) state.els.index.classList.toggle('is-open');
-    else state.els.workspace.classList.toggle('index-hidden');
+    if (window.matchMedia(PHONE).matches) {
+      // on phones the index covers the map; open it at the entry being read
+      var open = state.els.index.classList.toggle('is-open');
+      var li = open && $('.index-list li.is-active');
+      if (li) li.scrollIntoView({ block: 'center' });
+    } else state.els.workspace.classList.toggle('index-hidden');
   }
   function closeIndexOnMobile() { state.els.index.classList.remove('is-open'); }
 
@@ -691,10 +760,16 @@
       state.labelOpacity = Number(e.labelOpacity.value);
       $$('.label-ovl').forEach(function (n) { n.style.opacity = state.labelOpacity; });
     });
-    e.zoomIn.addEventListener('click', function () { state.viewer.viewport.zoomBy(1.5); });
-    e.zoomOut.addEventListener('click', function () { state.viewer.viewport.zoomBy(1 / 1.5); });
+    // zoomBy does not apply the zoom limits itself; OpenSeadragon's own buttons follow it with applyConstraints
+    e.zoomIn.addEventListener('click', function () { state.viewer.viewport.zoomBy(1.5).applyConstraints(); });
+    e.zoomOut.addEventListener('click', function () { state.viewer.viewport.zoomBy(1 / 1.5).applyConstraints(); });
     e.zoomHome.addEventListener('click', function () { state.viewer.viewport.goHome(); });
     e.helpToggle.addEventListener('click', function () { toggleHelp(); });
+    e.helpClose.addEventListener('click', function () { toggleHelp(false); });
+    // a tap or click anywhere else closes the help (capture phase: the map's handlers stop pointer events)
+    document.addEventListener('pointerdown', function (ev) {
+      if (!e.help.classList.contains('hidden') && !e.help.contains(ev.target) && !e.helpToggle.contains(ev.target)) toggleHelp(false);
+    }, true);
     e.about.addEventListener('click', showAbout);
     e.indexToggle.addEventListener('click', toggleIndex);
 

@@ -725,11 +725,11 @@
    "id": "b024",
    "view": "map",
    "category": "inscription",
-   "tour": true,
+   "tour": false,
    "confidence": "low",
    "label": {
     "fr": "[illegible]",
-    "en": ""
+    "en": "Illegible"
    },
    "region": {
     "x": 3598,
@@ -1481,11 +1481,11 @@
    "id": "b051",
    "view": "map",
    "category": "inscription",
-   "tour": true,
+   "tour": false,
    "confidence": "low",
    "label": {
     "fr": "S[illegible]",
-    "en": ""
+    "en": "Illegible"
    },
    "region": {
     "x": 2861,

@@ -31,7 +31,7 @@
 
     <h2 class="section-title">About this site</h2>
     <p>The collection's catalogue and images come from the TARTARY Project's first site, <a href="https://tartary.vercel.app">tartary.vercel.app</a>, built by Alexia Tsang. This page reads a copy of that catalogue taken on <span id="snapshotDate">29 Oct 2026</span> and opens the same deep-zoom images.</p>
-    <p>The Ortelius texts were transcribed and translated by an AI model, Claude Opus 5.5, reading Internet Archive's scan of the Boston Public Library copy, then scored against Marcel van den Broecke's edition at orteliusmaps.com. The Speed texts, from the Bibliothèque nationale de France copy on Wikimedia Commons, were read the same way and checked against the scan in samples, since no published transcription exists. The French-Russian map, from the Newberry Library, has no published transcription at all: its readings are the model's, with a second reading where two parts of the work overlapped. All three are a test of the method and have not yet been reviewed by a specialist. Specialists can check and correct them, label by label, in <a href="review/">review mode</a> (password for the project's reviewers). The Ricci and Miller maps are feature demonstrations from September 2026, with illustrative texts.</p>
+    <p>The Ortelius texts were transcribed and translated by an AI model, Claude Opus 5.5, reading Internet Archive's scan of the Boston Public Library copy, then scored against Marcel van den Broecke's edition at orteliusmaps.com. The Speed texts, from the Bibliothèque nationale de France copy on Wikimedia Commons, were read the same way and checked against the scan in samples, since no published transcription exists. The French-Russian map, from the Newberry Library, has no published transcription at all: its readings are the model's, with a second reading where two parts of the work overlapped. All three are a test of the method and have not yet been reviewed by a specialist. Specialists can check and correct them, label by label, in <a href="review/">review mode</a> (password for the project's reviewers). The Miller Atlas sheet is a feature demonstration from September 2026, with illustrative texts.</p>
 
     <footer class="footer">Marco-Map · HKUST · viewer built with OpenSeadragon 6.1 · <a href="https://github.com/ZENG-LingBo/Marco-Map">source and documentation on GitHub</a></footer>
   </div>
@@ -55,7 +55,7 @@
           li.appendChild(figure);
           var body = el('div');
           if (m.private) body.appendChild(el('div', 'local-badge', 'On this computer only · not on the public site'));
-          var lang = m.title.zh ? 'zh' : m.title.la ? 'la' : m.title.ru ? 'ru' : null;
+          var lang = ['zh', 'la', 'ru', 'fr'].filter(function (l) { return m.title[l]; })[0];
           if (lang) { var o = el('div', lang, m.title[lang]); o.lang = lang; body.appendChild(o); }
           body.appendChild(el('div', 'en', m.title.en));
           body.appendChild(el('div', 'meta', m.creator + ' · ' + m.date + ' · ' + m.repository));
@@ -91,10 +91,12 @@
           if (m.sources.length) a.appendChild(el('div', 'from', m.sources.join(', ')));
           li.appendChild(a);
           grid.appendChild(li);
-          return { li: li, text: [m.year, m.authors.join(' '), m.title || '', m.sources.join(' ')].join(' ').toLowerCase() };
+          return { li: li, text: norm([m.year, m.authors.join(' '), m.title || 'Untitled', m.sources.join(' ')].join(' ')) };
         });
+        // the search matches what the card shows, ignoring case and the kind of apostrophe
+        function norm(t) { return t.toLowerCase().replace(/[‘’ʼ]/g, "'"); }
         function filter() {
-          var q = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+          var q = norm(search.value).trim().split(/\s+/).filter(Boolean);
           var shown = 0;
           items.forEach(function (it) {
             var ok = q.every(function (w) { return it.text.indexOf(w) >= 0; });

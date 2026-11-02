@@ -52,12 +52,13 @@ def part(q):
 
 def block_category(b):
     o = b["original"]
-    letters = re.sub(r"[^A-Za-zÀ-ÿſ]", "", o)
+    # letters actually read: the [illegible] and [?] markers are not part of the text
+    letters = re.sub(r"[^A-Za-zÀ-ÿſ]", "", o.replace("[illegible]", "").replace("[?]", ""))
     if "CARTE GENERALE" in o.upper():
         return "cartouche", True
     if "Verstes" in o or "Echelle" in o:
         return "diagram", True
-    if not letters:
+    if not letters and "[illegible]" not in o:
         return "graticule", False  # degrees in the border
     if (b.get("note") or "").lower().startswith("not part of the map") or "Ayer MS" in o:
         return None, False  # modern shelfmark
@@ -160,7 +161,7 @@ def main(test_output):
             notes.append(b["second"])
         annotations.append({
             "id": f"b{i:03d}", "view": "map", "category": cat, "tour": tour, "confidence": b["confidence"],
-            "label": {"fr": incipit(b["expanded"] or b["original"]), "en": incipit(b["translation_en"])},
+            "label": {"fr": incipit(b["expanded"] or b["original"]), "en": incipit(b["translation_en"]) or "Illegible"},
             "region": box(b["centre"], len(lines), max(len(l) for l in lines), big=cat == "toponym"),
             "region_approx": True,
             "text": {

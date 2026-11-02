@@ -68,21 +68,23 @@ kbd {
 }
 select.select {
   font-family: var(--sans); font-size: var(--fs-0); padding: 0.45rem 0.5rem; border: 1px solid var(--rule-2);
-  background: var(--paper); color: var(--ink); border-radius: 2px;
+  background: var(--paper); color: var(--ink); border-radius: 2px; max-width: 100%;
 }
 input[type="range"] { accent-color: var(--accent); }
 
 /* ---------- Top bar ---------- */
+/* One row while the title (at least 8rem of it) fits beside the controls; on narrower windows the
+   controls wrap onto a second row rather than running off the edge. */
 .topbar {
-  height: var(--topbar-h); display: flex; align-items: center; gap: 1rem; padding: 0 1rem;
+  min-height: var(--topbar-h); display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 1rem; padding: 0.5rem 1rem;
   border-bottom: 1px solid var(--rule); background: var(--paper); position: relative; z-index: 20;
 }
 .topbar .brand { font-family: var(--sans); font-size: var(--fs-0); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); text-decoration: none; white-space: nowrap; }
-.topbar .title { display: flex; align-items: baseline; gap: 0.6rem; min-width: 0; flex: 1 1 auto; }
+.topbar .title { display: flex; align-items: baseline; gap: 0.6rem; min-width: 8rem; flex: 1 1 0; }
 .topbar .title .zh { font-size: var(--fs-3); font-family: var(--serif-zh); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: none; max-width: 100%; }
 .topbar .title .en { font-size: var(--fs-1); color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.topbar .spacer { flex: 1; }
-.topbar .controls { display: flex; align-items: center; gap: 0.6rem; flex: none; }
+.topbar .spacer { display: none; }  /* the controls' auto margin pushes them right */
+.topbar .controls { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 0.6rem; flex: 0 1 auto; margin-left: auto; }
 .topbar #tourStatus { white-space: nowrap; min-width: 3.6rem; text-align: center; }
 
 /* ---------- Viewer layout ---------- */
@@ -115,8 +117,11 @@ input[type="range"] { accent-color: var(--accent); }
 
 /* reading panel (right) */
 .reading-inner { padding: 1rem 1.25rem 2rem; }
-.reading .eyebrow { font-family: var(--sans); font-size: var(--fs-0); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); display: flex; align-items: center; justify-content: space-between; }
-.reading .eyebrow .close { border: 0; background: none; font-family: var(--sans); font-size: var(--fs-0); cursor: pointer; color: var(--ink-3); padding: 0.2rem 0.4rem; }
+/* stays at the top of the panel while its text scrolls, so Close is always in reach */
+.reading .eyebrow { font-family: var(--sans); font-size: var(--fs-0); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; position: sticky; top: 0; z-index: 1; background: var(--paper); margin: -0.4rem 0 0; padding: 0.4rem 0; }
+.reading .eyebrow .close, .help .close { border: 0; background: none; font-family: var(--sans); font-size: var(--fs-0); cursor: pointer; color: var(--ink-3); padding: 0.2rem 0.4rem; white-space: nowrap; flex: none; }
+.help .close { float: right; margin: -0.4rem -0.5rem 0 0; }
+@media (pointer: coarse) { .reading .eyebrow .close, .help .close { padding: 0.6rem 0.7rem; margin-right: -0.7rem; } }
 .reading h2.zh { font-family: var(--serif-zh); font-size: var(--fs-4); margin-top: 0.3rem; }
 .reading h3.en { font-size: var(--fs-3); font-weight: 400; color: var(--ink-2); margin-top: 0.2rem; margin-bottom: 0.8rem; }
 .reading .actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.6rem 0 1rem; }
@@ -148,12 +153,15 @@ input[type="range"] { accent-color: var(--accent); }
 }
 .pin:hover, .pin.is-active { background: var(--accent); color: #fff; }
 .pin.is-dim { opacity: 0.35; }
+/* pins above the translated labels, which would otherwise cover the pins added before them */
+.pin { z-index: 2; }
+.pin.is-active { z-index: 3; }
 .region { position: absolute; border: 1.5px solid rgba(179, 64, 42, 0.85); background: rgba(179, 64, 42, 0.06); pointer-events: none; }
 .region.is-active { border-width: 2px; background: rgba(179, 64, 42, 0.12); box-shadow: 0 0 0 1px rgba(255,255,255,0.4); }
 .label-ovl {
   position: absolute; pointer-events: none; font-family: var(--sans); font-size: 12px; line-height: 1.25;
   padding: 3px 6px; background: rgba(247, 244, 238, 0.92); color: var(--ink); border-left: 3px solid var(--accent);
-  white-space: nowrap; margin-bottom: 3px;
+  white-space: nowrap; margin-bottom: 3px; z-index: 1;
 }
 .hidden { display: none !important; }
 
@@ -209,8 +217,13 @@ input[type="range"] { accent-color: var(--accent); }
 
 /* ---------- Story (story.html) ---------- */
 .story-page { min-height: 100%; }
+/* the top bar stays put and the map fills the rest of the window, so its caption is never below the fold */
+.story-page .topbar { position: sticky; top: 0; }
 .story { display: grid; grid-template-columns: minmax(20rem, 34rem) 1fr; }
-.story .text { padding: 2rem 2.5rem 6rem; }
+/* a section is shown while it crosses a band at 42-52% of the window's height (js/story.js). The
+   space below the last one is sized so that scrolling to the very end leaves it in that band, so
+   it is shown even after a jump to the end (End key, a fling) that skips the scroll in between. */
+.story .text { padding: 2rem 2.5rem 45vh; }
 .story .text .kicker { font-family: var(--sans); font-size: var(--fs-0); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); }
 .story .text h1 { font-size: var(--fs-4); margin: 0.4rem 0 0.2rem; }
 .story .text h1 .zh { font-family: var(--serif-zh); display: block; }
@@ -220,7 +233,7 @@ input[type="range"] { accent-color: var(--accent); }
 .story section h2 .zh { font-family: var(--serif-zh); margin-right: 0.5rem; }
 .story section .orig { font-family: var(--serif-zh); font-size: 1.15rem; line-height: 1.9; color: var(--ink-2); border-left: 2px solid var(--accent); padding-left: 0.8rem; margin: 0.8rem 0; }
 .story section.is-current h2 { color: var(--accent-2); }
-.story .stage-wrap { position: sticky; top: 0; height: 100vh; background: #2a2622; }
+.story .stage-wrap { position: sticky; top: var(--topbar-h); height: calc(100vh - var(--topbar-h)); background: #2a2622; }
 .story .stage-wrap #osd { position: absolute; inset: 0; }
 .story .stage-wrap .caption { position: absolute; left: 0; right: 0; bottom: 0; padding: 0.5rem 0.9rem; background: rgba(247,244,238,0.94); border-top: 1px solid var(--rule); font-family: var(--sans); font-size: var(--fs-0); color: var(--ink-2); }
 .story .end { margin-top: 2rem; font-family: var(--sans); font-size: var(--fs-0); color: var(--ink-3); }
@@ -230,25 +243,13 @@ input[type="range"] { accent-color: var(--accent); }
   :root { --index-w: 240px; --panel-w: 340px; }
 }
 @media (max-width: 768px) {
-  .topbar { height: auto; min-height: var(--topbar-h); flex-wrap: wrap; gap: 0.4rem 0.6rem; padding: 0.45rem 0.75rem; }
-  .topbar .title .en { display: none; }
-  .topbar .title .zh { font-size: var(--fs-2); }
-  .topbar .brand { display: none; }
-  .topbar .spacer { display: none; }
-  .topbar .controls { width: 100%; flex-wrap: wrap; gap: 0.4rem; }
-  .topbar .controls .select { max-width: 9rem; }
-  .workspace, .workspace.panel-closed { grid-template-columns: 1fr; grid-template-rows: 1fr auto; position: relative; }
-  .index { display: none; }
-  .index.is-open { display: block; position: absolute; inset: 0; z-index: 25; border-right: 0; }
-  .reading { position: fixed; left: 0; right: 0; bottom: 0; height: 55vh; border-left: 0; border-top: 1px solid var(--rule-2); box-shadow: 0 -6px 24px rgba(0,0,0,0.15); z-index: 24; }
-  .workspace.panel-closed .reading { display: none; }
+  .story-page .topbar { position: relative; }
   .story { grid-template-columns: 1fr; }
   .story .stage-wrap { position: sticky; top: 0; height: 48vh; }
-  .story .text { padding: 1.25rem 1rem 4rem; order: 2; }
+  .story .text { padding: 1.25rem 1rem 30vh; order: 2; }  /* the band on phones is at 55-65% */
   .story .stage-wrap { order: 1; }
   .catalogue-list li { grid-template-columns: 1fr; }
   .catalogue-list img { max-width: 220px; }
-  .help { left: 1rem; right: 1rem; width: auto; }
 }
 @media (prefers-reduced-motion: reduce) {
   .toast { transition: none; }
@@ -275,15 +276,11 @@ input[type="range"] { accent-color: var(--accent); }
 /* keep the stage and panel in their columns when the index column is empty */
 .stage { grid-column: 2; }
 .reading { grid-column: 3; }
-@media (max-width: 768px) {
-  .stage, .reading { grid-column: auto; }
-  .no-annotations .workspace, .no-annotations .workspace.panel-closed { grid-template-columns: 1fr; }
-}
 
 /* ---------- Collection grid (index.html) ---------- */
 .collection-tools { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; margin-bottom: 1rem; font-family: var(--sans); font-size: var(--fs-0); color: var(--ink-3); }
 .collection-tools input[type="search"] { font-family: var(--sans); font-size: var(--fs-1); padding: 0.45rem 0.6rem; border: 1px solid var(--rule-2); background: var(--paper); color: var(--ink); border-radius: 2px; width: min(22rem, 100%); }
-.collection-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr)); gap: 1.25rem 1rem; }
+.collection-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: 1.25rem 1rem; }  /* two columns on a phone */
 .collection-grid a { display: block; text-decoration: none; color: inherit; }
 .collection-grid .thumb { aspect-ratio: 4 / 3; background: var(--paper-2); border: 1px solid var(--rule); display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .collection-grid img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
@@ -382,3 +379,34 @@ body:not(.review-page) .region.is-approx { display: none !important; } /* OpenSe
 .reading h2.fr { font-size: var(--fs-3); font-style: italic; margin-top: 0.3rem; }
 .tooltip .fr { font-style: italic; display: block; }
 .catalogue-list .fr { font-size: var(--fs-3); font-style: italic; }
+
+/* ---------- Phones (the same query is PHONE in js/viewer.js) ----------
+   The reading panel takes its own part of the screen, below the map (beside it when the phone is
+   held sideways), instead of lying over the map: the region being read, the zoom buttons and the
+   overview stay in sight, and the map is fitted to the part of the screen it has. */
+@media (max-width: 768px), (max-height: 500px) and (pointer: coarse) {
+  .topbar { gap: 0.4rem 0.6rem; padding: 0.45rem 0.75rem; }
+  .topbar .title { flex: 1 1 0; min-width: 0; }  /* beside the brand, cut short if need be */
+  .topbar .title .en { display: none; }
+  .topbar .title .hidden + .en { display: inline; }  /* a map with an English title only */
+  .topbar .title .zh { font-size: var(--fs-2); }
+  .topbar .controls { width: 100%; justify-content: flex-start; gap: 0.4rem; margin-left: 0; }
+  #mapSelect { flex: 1 1 9rem; min-width: 0; max-width: none; }
+  .workspace, .workspace.panel-closed, .workspace.index-hidden, .workspace.index-hidden.panel-closed,
+  .no-annotations .workspace, .no-annotations .workspace.panel-closed { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); position: relative; }
+  .workspace:not(.panel-closed), .no-annotations .workspace:not(.panel-closed) { grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
+  .stage { grid-column: 1; grid-row: 1; }
+  .reading { grid-column: 1; grid-row: 2; border-left: 0; border-top: 1px solid var(--rule-2); }
+  .index { display: none; }
+  .index.is-open { display: block; position: absolute; inset: 0; z-index: 25; border-right: 0; }
+  .stage-bar .opacity-ctl { display: none; }
+  .help { left: 1rem; right: 1rem; width: auto; }
+}
+@media (max-height: 500px) and (pointer: coarse) {
+  .workspace:not(.panel-closed), .no-annotations .workspace:not(.panel-closed) { grid-template-columns: minmax(0, 1fr) minmax(0, 45%); grid-template-rows: minmax(0, 1fr); }
+  .reading { grid-column: 2; grid-row: 1; border-top: 0; border-left: 1px solid var(--rule); }
+}
+/* iOS zooms the page into any text field set smaller than 16px when it is focused (last in the file, to override the fields' own sizes) */
+@media (pointer: coarse) {
+  select.select, .collection-tools input[type="search"], .reviewer-name input { font-size: 16px; }
+}
