@@ -33,6 +33,22 @@
       }
     },
     {
+      "id": "frru-1680",
+      "file": "data/frru-1680.json",
+      "title": {
+        "fr": "Carte generale de la Siberie et de la Grande Tartarie",
+        "en": "General map of Siberia and Great Tartary"
+      },
+      "creator": "French copy of a lost Russian map",
+      "date": "c. 1675–1685",
+      "repository": "Newberry Library, Chicago (Ayer MS map 30, sheet 115)",
+      "thumbnail": "img/frru-1680-thumb.jpg",
+      "summary": "Reading edition. A Russian map of Siberia known only from this French manuscript copy: the Russian names written in French, and the tents of the Yakuts, Tungus, Kalmyks and Mongols. Its notes, peoples and regions are pinned on the map, and its 264 towns, rivers and lakes can be shown on demand, each as written and in English. Read from the scan by an AI model (Claude Opus 5.5); the faded scan has its contrast adjusted, with the original one click away.",
+      "short": {
+        "en": "French-Russian map of Siberia, 1675–85"
+      }
+    },
+    {
       "id": "ricci-1602",
       "file": "data/ricci-1602.json",
       "title": {

@@ -10,7 +10,7 @@
   var CATEGORY = {
     cartouche: 'Cartouche', inscription: 'Inscription', toponym: 'Place name',
     diagram: 'Diagram', colophon: 'Colophon', illustration: 'Illustration',
-    cardinal: 'Cardinal point', passage: 'Passage', numeral: 'Number'
+    cardinal: 'Cardinal point', passage: 'Passage', numeral: 'Number', placename: 'Towns, rivers and lakes', graticule: 'Degree numbers'
   };
   /* Maps from the existing site's catalogue (data/collection.json) are addressed as #map=tartary-<n>. */
   var COLLECTION_PREFIX = 'tartary-';
@@ -39,11 +39,12 @@
     if (text != null) e.textContent = text;
     return e;
   }
-  /* The original-language form of a title or label: Chinese (zh), Latin (la) or Russian (ru). Collection maps have none. */
+  /* The original-language form of a title or label: Chinese (zh), Latin (la), Russian (ru) or French (fr). Collection maps have none. */
   function origOf(obj) {
     if (obj && obj.zh) return { text: obj.zh, lang: 'zh' };
     if (obj && obj.la) return { text: obj.la, lang: 'la' };
     if (obj && obj.ru) return { text: obj.ru, lang: 'ru' };
+    if (obj && obj.fr) return { text: obj.fr, lang: 'fr' };
     return null;
   }
   function origEl(tag, obj) {
@@ -326,7 +327,7 @@
     var root = state.els.readingInner;
     root.innerHTML = '';
     var eyebrow = el('div', 'eyebrow');
-    eyebrow.appendChild(el('span', null, (CATEGORY[a.category] || a.category) + (a.number != null ? (a.number ? ' · map no. ' + a.number : ' · no number') : ' · no. ' + a.num) + ' · ' + viewById(a.view).label.en));
+    eyebrow.appendChild(el('span', null, catName(a.category) + (a.number != null ? (a.number ? ' · map no. ' + a.number : ' · no number') : ' · no. ' + a.num) + ' · ' + viewById(a.view).label.en));
     var close = el('button', 'close', 'Close ×');
     close.type = 'button';
     close.addEventListener('click', closePanel);
@@ -492,7 +493,7 @@
         var o = origEl('div', a.label);
         if (o) body.appendChild(o);
         var en = el('div', 'en', a.label.en);
-        en.appendChild(el('span', 'cat', CATEGORY[a.category] || a.category));
+        en.appendChild(el('span', 'cat', catName(a.category)));
         body.appendChild(en);
         li.appendChild(body);
         li.addEventListener('click', function () { select(a.id, { zoom: true, stopTour: true }); closeIndexOnMobile(); });
@@ -504,17 +505,26 @@
     state.map.annotations.forEach(function (a) { cats[a.category] = true; });
     var sel = state.els.filter;
     sel.innerHTML = '';
-    var all = el('option', null, 'All categories'); all.value = 'all'; sel.appendChild(all);
-    Object.keys(cats).forEach(function (c) { var o = el('option', null, CATEGORY[c] || c); o.value = c; sel.appendChild(o); });
+    var all = el('option', null, quietCats().length ? 'All but ' + quietCats().map(function (c) { return catName(c).toLowerCase(); }).join(', ') : 'All categories');
+    all.value = 'all'; sel.appendChild(all);
+    Object.keys(cats).forEach(function (c) { var o = el('option', null, catName(c)); o.value = c; sel.appendChild(o); });
     sel.addEventListener('change', function () { state.filter = sel.value; applyFilter(); });
   }
 
+  /* Categories a map lists in "quiet" (e.g. hundreds of place names) are left out of the default
+     view, so they don't bury the notes; choosing the category in the filter shows them. */
+  function quietCats() { return state.map.quiet || []; }
+  /* A map may rename a category for its own content ("categories": {"toponym": "Peoples, regions and seas"}). */
+  function catName(c) { return (state.map.categories && state.map.categories[c]) || CATEGORY[c] || c; }
   function applyFilter() {
-    var f = state.filter;
-    $$('.index-list li[data-id]').forEach(function (li) { li.classList.toggle('is-hidden', f !== 'all' && li.dataset.category !== f); });
+    var f = state.filter, quiet = quietCats();
+    $$('.index-list li[data-id]').forEach(function (li) {
+      li.classList.toggle('is-hidden', f !== 'all' ? li.dataset.category !== f : quiet.indexOf(li.dataset.category) >= 0);
+    });
     state.map.annotations.forEach(function (a) {
       var off = f !== 'all' && a.category !== f;
-      $$('.pin[data-id="' + a.id + '"]').forEach(function (p) { p.classList.toggle('is-dim', off); });
+      var away = f === 'all' && quiet.indexOf(a.category) >= 0;
+      $$('.pin[data-id="' + a.id + '"]').forEach(function (p) { p.classList.toggle('is-dim', off); p.classList.toggle('hidden', away); });
       $$('.region[data-id="' + a.id + '"], .label-ovl[data-id="' + a.id + '"]').forEach(function (n) {
         n.classList.toggle('hidden', off || (n.classList.contains('label-ovl') && !state.labelsOn));
       });
