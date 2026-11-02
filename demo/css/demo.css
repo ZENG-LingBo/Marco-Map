@@ -7,7 +7,7 @@
   --paper-2: #efeae0;
   --ink: #1e1b17;
   --ink-2: #4a453e;
-  --ink-3: #7d766c;
+  --ink-3: #6f685e;         /* 5.0:1 on --paper, 4.6:1 on --paper-2: small grey text stays readable (WCAG AA) */
   --rule: #d6cfc2;
   --rule-2: #b9b0a0;
   --accent: #b3402a;        /* 朱砂 seal-ink vermilion */
@@ -61,9 +61,14 @@ kbd {
 .btn:active { background: var(--rule); }
 .btn[aria-pressed="true"], .btn.is-active { border-color: var(--accent); color: var(--accent-2); background: var(--accent-wash); }
 .btn:disabled { opacity: 0.45; cursor: default; }
+/* the main action on a page: filled ink (vermilion stays for the pins and the selected item) */
+.btn.primary { border-color: var(--ink-2); background: var(--ink); color: var(--paper); }
+.btn.primary:hover { background: var(--ink-2); }
+.btn.primary:disabled { background: var(--paper); color: var(--ink); border-color: var(--rule-2); }
+a.btn { text-decoration: none; }
 .btn-group { display: inline-flex; }
 .btn-group .btn + .btn { margin-left: -1px; }
-.btn:focus-visible, a:focus-visible, [tabindex]:focus-visible, select:focus-visible, input:focus-visible {
+.btn:focus-visible, a:focus-visible, [tabindex]:focus-visible, select:focus-visible, input:focus-visible, .scan-line .link:focus-visible {
   outline: 2px solid var(--focus); outline-offset: 2px;
 }
 select.select {
@@ -133,6 +138,12 @@ input[type="range"] { accent-color: var(--accent); }
 .original.vertical { writing-mode: vertical-rl; text-orientation: mixed; height: 22rem; max-width: 100%; overflow-x: auto; line-height: 2.1; padding-bottom: 0.5rem; }
 .original.latin { font-family: var(--serif); font-size: 1.1rem; font-style: italic; }
 .translation { font-size: var(--fs-2); }
+/* the text and its translation on one tab, each under a small label */
+.reading .text-label { font-family: var(--sans); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 0.3rem; }
+.reading .original + .text-label { margin-top: 1.2rem; }
+.reading .scan-line { font-family: var(--sans); font-size: var(--fs-0); color: var(--ink-3); margin: 1.4rem 0 0; padding-top: 0.8rem; border-top: 1px solid var(--rule); }
+.reading .scan-line .link { font: inherit; color: var(--ink-2); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-decoration-color: var(--rule-2); text-underline-offset: 0.15em; }
+.reading .scan-line .link:hover { text-decoration-color: var(--accent); }
 .commentary { font-size: var(--fs-2); }
 .source { font-size: var(--fs-0); font-family: var(--sans); color: var(--ink-2); }
 .source ol { padding-left: 1.2rem; margin: 0; }
@@ -179,6 +190,8 @@ input[type="range"] { accent-color: var(--accent); }
 }
 .stage-bar .spacer { flex: 1; }
 .stage-bar label { display: inline-flex; align-items: center; gap: 0.4rem; }
+/* the slider sets the translated labels' opacity, so it is there only while they are drawn */
+.stage-bar #labelsToggle[aria-pressed="false"] + .opacity-ctl { display: none; }
 .stage-note { position: absolute; top: 0.6rem; left: 0.75rem; z-index: 5; font-family: var(--sans); font-size: var(--fs-0); color: var(--paper); background: rgba(30, 27, 23, 0.72); padding: 0.3rem 0.55rem; border-radius: 2px; }
 .author-hint { position: absolute; top: 0.6rem; right: 0.75rem; z-index: 6; font-family: var(--sans); font-size: var(--fs-0); color: #fff; background: var(--accent-2); padding: 0.35rem 0.6rem; border-radius: 2px; }
 .author-box { position: absolute; border: 2px dashed var(--accent); background: rgba(179,64,42,0.15); pointer-events: none; z-index: 6; }
@@ -353,9 +366,6 @@ input[type="range"] { accent-color: var(--accent); }
 .palette .btn.key { font-family: var(--serif); font-size: 1rem; padding: 0.25rem 0.45rem; min-width: 2rem; }
 .rv-region { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin: 0.9rem 0; font-family: var(--sans); font-size: var(--fs-0); }
 .rv-approx { color: var(--accent-2); }
-.btn.primary { border-color: var(--ink-2); background: var(--ink); color: var(--paper); }
-.btn.primary:hover { background: var(--ink-2); }
-.btn.primary:disabled { background: var(--paper); color: var(--ink); border-color: var(--rule-2); }
 .btn.primary-soft { border-color: var(--accent); color: var(--accent-2); }
 .btn.warn { border-color: var(--st-disputed); color: #7a4d06; }
 .btn.link { border: 0; background: none; text-decoration: underline; color: var(--ink-3); }

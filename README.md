@@ -20,7 +20,7 @@ Historical Chinese maps online: the takeover plan, feature demos and cost estima
 `demo/` is plain HTML, CSS and JavaScript with one JSON file per annotated map, no build step.
 
 - `index.html` — front page: the annotated maps, then the 144-map collection with search
-- `viewer.html` — deep zoom · numbered annotations · reading panel with 原文 original / translation / commentary / source · front/back switch · guided tour · translated-label layer · deep links · author mode (`E`) to copy a region
+- `viewer.html` — deep zoom · numbered annotations · reading panel with the original and its translation together, then expanded text / commentary / source · front/back switch · guided tour · translated-label layer · full screen (`F`) for presenting · deep links · author mode (`E`) to copy a region
 - `story.html` — narrative mode: scrolling flies the map to each passage and turns the sheet over when needed
 - `review/` — review mode for specialists, behind a password (below): labels the model was least sure of come first; each opens at its place on the scan beside the machine reading, to accept, correct (text, number, box) or dispute with a comment. Buttons insert the marks of the transcription rules (titlo, raised letters, pre-reform letters, long s). Decisions are kept in the browser and exported as a corrections file
 

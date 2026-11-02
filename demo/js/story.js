@@ -36,7 +36,7 @@
   });
 
   function build() {
-    document.title = map.story.title.en + ' · Marco-Map demo';
+    document.title = map.story.title.en + ' · Mapping Tartary';
     var text = document.getElementById('storyText');
     var h1 = el('h1');
     var zh = el('span', 'zh', map.story.title.zh); zh.lang = 'zh';

@@ -2,7 +2,7 @@
    Vanilla JavaScript on top of OpenSeadragon. Everything the page shows comes from
    data/catalogue.json and one map file (data/<map>.json). No build step.
    Keyboard: , . previous/next annotation · p play/pause tour · l translated labels ·
-   e author mode · i index · ? help · Esc close. */
+   e author mode · i index · f full screen · ? help · Esc close. */
 (function () {
   'use strict';
 
@@ -92,7 +92,7 @@
   function boot() {
     ['osd', 'indexList', 'filter', 'readingInner', 'viewSwitch', 'tourPrev', 'tourNext', 'tourPlay',
       'tourStatus', 'labelsToggle', 'labelOpacity', 'zoomIn', 'zoomOut', 'zoomHome', 'help', 'helpToggle', 'helpClose',
-      'about', 'indexToggle', 'tooltip', 'toast', 'authorHint', 'stageNote', 'titleZh', 'titleEn',
+      'about', 'indexToggle', 'fullScreen', 'tooltip', 'toast', 'authorHint', 'stageNote', 'titleZh', 'titleEn',
       'mapSelect', 'workspace', 'index', 'stage', 'credit'
     ].forEach(function (id) { state.els[id] = document.getElementById(id); });
 
@@ -168,7 +168,7 @@
   function loadMap(map, h) {
     state.map = map;
     map.annotations.forEach(function (a, i) { a.num = i + 1; });
-    document.title = map.title.en + ' · Marco-Map demo';
+    document.title = map.title.en + ' · Mapping Tartary';
     var t = origOf(map.title);
     state.els.titleZh.textContent = t ? t.text : '';
     state.els.titleZh.lang = t ? t.lang : '';
@@ -354,8 +354,11 @@
     if (h2) root.appendChild(h2);
     root.appendChild(el('h3', 'en', a.label.en));
 
-    // set by scripts/apply_corrections.py from the specialists' review
+    // set by scripts/apply_corrections.py from the specialists' review; until then the map's own
+    // notice says what the readings are, and its first sentence goes here, before the text
+    var notice = splitNotice(state.map.notice);
     if (state.map.reviewed || a.review) root.appendChild(reviewBadge(a.review));
+    else if (notice.status) root.appendChild(el('p', 'review-badge', notice.status));
 
     var actions = el('div', 'actions');
     var zoomBtn = el('button', 'btn', 'Zoom to region'); zoomBtn.type = 'button';
@@ -369,10 +372,14 @@
 
     var t = a.text || {};
     var hasOriginal = t.original && t.original !== '(no text)';
+    // a translation is read with the text it translates, so both open together on the first tab;
+    // an English text's modern spelling repeats the same words, so it keeps a tab of its own
+    var withText = t.translation && hasOriginal && t.lang !== 'en';
+    var transLabel = t.lang === 'en' ? 'Modern spelling' : 'Translation';
     var tabs = [];
-    if (hasOriginal) tabs.push({ key: 'original', label: t.lang === 'zh' ? '原文 Original' : 'Original' });
+    if (hasOriginal) tabs.push({ key: 'original', label: t.lang === 'zh' ? '原文 Text' : 'Text' });
     if (t.expanded) tabs.push({ key: 'expanded', label: t.lang === 'ru' ? 'Modern Russian' : 'Expanded' });
-    if (t.translation) tabs.push({ key: 'translation', label: t.lang === 'en' ? 'Modern spelling' : 'Translation' });
+    if (t.translation && !withText) tabs.push({ key: 'translation', label: transLabel });
     if (t.commentary) tabs.push({ key: 'commentary', label: 'Commentary' });
     if (t.source && t.source.length) tabs.push({ key: 'source', label: 'Source' });
 
@@ -390,8 +397,12 @@
     });
     root.appendChild(tablist);
 
+    function translationInto(p) {
+      t.translation.split('\n').forEach(function (line) { p.appendChild(el('p', 'translation', line)); });
+    }
     if (hasOriginal) {
       var p = el('div', 'tabpanel');
+      if (withText) p.appendChild(el('div', 'text-label', t.lang === 'zh' ? '原文 Original' : 'Original'));
       var orig = el('div', 'original' + (t.lang === 'zh' ? '' : t.lang === 'ru' ? ' ru' : ' latin'), t.original);
       orig.lang = t.lang || 'la';
       if (t.lang === 'zh') {
@@ -406,38 +417,60 @@
         p.appendChild(vbtn);
       }
       p.appendChild(orig);
+      if (withText) {
+        p.appendChild(el('div', 'text-label', transLabel));
+        translationInto(p);
+      }
       panels.original = p; root.appendChild(p);
     }
     if (t.expanded) {
-      var pe = el('div', 'tabpanel'); pe.hidden = true;
+      var pe = el('div', 'tabpanel');
       pe.appendChild(el('p', 'note', t.lang === 'ru' ? 'In modern Russian spelling, abbreviations written out.' : 'Abbreviations written out; spelling as on the map.'));
       var ex = el('div', 'original ' + (t.lang === 'ru' ? 'ru' : 'latin'), t.expanded); ex.lang = t.lang;
       pe.appendChild(ex);
       panels.expanded = pe; root.appendChild(pe);
     }
-    if (t.translation) {
-      var p2 = el('div', 'tabpanel'); p2.hidden = true;
-      t.translation.split('\n').forEach(function (line) { p2.appendChild(el('p', 'translation', line)); });
+    if (t.translation && !withText) {
+      var p2 = el('div', 'tabpanel');
+      translationInto(p2);
       panels.translation = p2; root.appendChild(p2);
     }
     if (t.commentary) {
-      var p3 = el('div', 'tabpanel'); p3.hidden = true;
+      var p3 = el('div', 'tabpanel');
       t.commentary.split('\n').forEach(function (line) { p3.appendChild(el('p', 'commentary', line)); });
       panels.commentary = p3; root.appendChild(p3);
     }
     if (t.source && t.source.length) {
-      var p4 = el('div', 'tabpanel source'); p4.hidden = true;
+      var p4 = el('div', 'tabpanel source');
       var ol = el('ol');
       t.source.forEach(function (s) { ol.appendChild(el('li', null, s)); });
       p4.appendChild(ol);
       panels.source = p4; root.appendChild(p4);
     }
-    if (!hasOriginal && panels.commentary) {
-      panels.commentary.hidden = false;
-      $$('button', tablist).forEach(function (x) { x.setAttribute('aria-selected', String(x.dataset.tab === 'commentary')); });
-    }
-    root.appendChild(catalogueBlock());
-    if (state.map.notice) root.appendChild(el('p', 'note', state.map.notice));
+    // the first tab is open, whichever kinds of text this annotation has
+    Object.keys(panels).forEach(function (k) { panels[k].hidden = k !== tabs[0].key; });
+
+    if (notice.rest) root.appendChild(el('p', 'note', notice.rest));
+    root.appendChild(scanLine());
+  }
+
+  /* A map's notice opens with what its readings are ("Machine transcription …, not yet reviewed by a
+     specialist."); the rest explains the marks in the text. Split at the end of the first sentence. */
+  function splitNotice(text) {
+    if (!text) return { status: '', rest: '' };
+    var m = /^(.+?\.)\s+(.*)$/.exec(text);
+    return m ? { status: m[1], rest: m[2] } : { status: text, rest: '' };
+  }
+
+  /* Under an annotation, one line on the scan; the full record is under About this map. */
+  function scanLine() {
+    var p = el('p', 'scan-line');
+    var c = state.map.catalogue;
+    if (c.repository) p.appendChild(document.createTextNode('Scan: ' + c.repository + ' · '));
+    var about = el('button', 'link', 'About this map'); about.type = 'button';
+    about.addEventListener('click', showAbout);
+    p.appendChild(about);
+    return p;
   }
 
   var REVIEW_TEXT = { accepted: 'Checked by ', corrected: 'Corrected by ', added: 'Added by ', disputed: 'Disputed by ' };
@@ -525,13 +558,17 @@
         list.appendChild(li);
       });
     });
+    // each choice says how many entries it lists; the quiet categories, left out of the first, come last
     var cats = {};
-    state.map.annotations.forEach(function (a) { cats[a.category] = true; });
+    state.map.annotations.forEach(function (a) { cats[a.category] = (cats[a.category] || 0) + 1; });
+    var quiet = quietCats().filter(function (c) { return cats[c]; });
+    var keys = Object.keys(cats).filter(function (c) { return quiet.indexOf(c) < 0; }).concat(quiet);
+    var main = state.map.annotations.length - quiet.reduce(function (n, c) { return n + cats[c]; }, 0);
     var sel = state.els.filter;
     sel.innerHTML = '';
-    var all = el('option', null, quietCats().length ? 'All but ' + quietCats().map(function (c) { return catName(c).toLowerCase(); }).join(', ') : 'All categories');
+    var all = el('option', null, (quiet.length ? 'Main entries' : 'All categories') + ' (' + main + ')');
     all.value = 'all'; sel.appendChild(all);
-    Object.keys(cats).forEach(function (c) { var o = el('option', null, catName(c)); o.value = c; sel.appendChild(o); });
+    keys.forEach(function (c) { var o = el('option', null, catName(c) + ' (' + cats[c] + ')'); o.value = c; sel.appendChild(o); });
     sel.addEventListener('change', function () { state.filter = sel.value; applyFilter(); });
   }
 
@@ -749,6 +786,13 @@
     } else state.els.workspace.classList.toggle('index-hidden');
   }
   function closeIndexOnMobile() { state.els.index.classList.remove('is-open'); }
+  /* The whole page, not only the map, so the reading panel and the tour stay on a projector's screen.
+     Esc leaves full screen in the browser itself. */
+  function toggleFullScreen() {
+    if (!document.fullscreenEnabled) return;
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen().catch(function () { toast('This browser did not allow full screen'); });
+  }
 
   function bindControls() {
     var e = state.els;
@@ -772,6 +816,14 @@
     }, true);
     e.about.addEventListener('click', showAbout);
     e.indexToggle.addEventListener('click', toggleIndex);
+    // iPhones offer full screen only for video, so the button is shown only where it works
+    e.fullScreen.classList.toggle('hidden', !document.fullscreenEnabled);
+    e.fullScreen.addEventListener('click', toggleFullScreen);
+    document.addEventListener('fullscreenchange', function () {
+      var on = !!document.fullscreenElement;
+      e.fullScreen.setAttribute('aria-pressed', String(on));
+      e.fullScreen.textContent = on ? 'Exit full screen' : 'Full screen';
+    });
 
     document.addEventListener('keydown', function (ev) {
       var tag = (ev.target.tagName || '').toLowerCase();
@@ -785,6 +837,7 @@
         case 'i': toggleIndex(); break;
         case '?': toggleHelp(); break;
         case 'h': state.viewer.viewport.goHome(); break;
+        case 'f': toggleFullScreen(); break;
         case 'Escape':
           if (!e.help.classList.contains('hidden')) toggleHelp(false);
           else if (state.author.on) toggleAuthor(false);

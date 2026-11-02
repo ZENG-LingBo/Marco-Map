@@ -36,8 +36,8 @@ LOCK_PAGE = """<!doctype html>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
-  <title>Review · Marco-Map</title>
-  <link rel="icon" href="data:,">
+  <title>Review · Mapping Tartary</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Noto+Serif+TC:wght@400;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
@@ -54,7 +54,7 @@ LOCK_PAGE = """<!doctype html>
 </head>
 <body>
   <main class="lock">
-    <div class="kicker sans muted">Marco-Map · for specialists</div>
+    <div class="kicker sans muted">Mapping Tartary · for specialists</div>
     <h1>Review mode</h1>
     <p>Checking and correcting the machine readings is open to the project's reviewers. Enter the password you were given.</p>
     <form id="unlock">
