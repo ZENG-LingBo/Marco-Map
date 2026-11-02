@@ -16,7 +16,7 @@
     <header class="masthead">
       <div class="kicker">Marco-Map · HKUST · prototype · November 2026</div>
       <h1>Mapping Tartary</h1>
-      <p class="lede">European maps of Tartary, from the TARTARY Project collection, in a deep-zoom viewer. The first reading edition, Ortelius's map of 1570, shows where this is going: every text on the map and on the back of the sheet, in Latin as engraved and in English, opened from a numbered pin.</p>
+      <p class="lede">European maps of Tartary, from the TARTARY Project collection, in a deep-zoom viewer. The reading editions, Ortelius's map of 1570 in Latin and Speed's of 1626 in English, show where this is going: every text on the map and on the back of the sheet, as engraved and in today's English, opened from a numbered pin.</p>
     </header>
 
     <h2 class="section-title">Annotated maps</h2>
@@ -31,7 +31,7 @@
 
     <h2 class="section-title">About this site</h2>
     <p>The collection's catalogue and images come from the TARTARY Project's first site, <a href="https://tartary.vercel.app">tartary.vercel.app</a>, built by Alexia Tsang. This page reads a copy of that catalogue taken on <span id="snapshotDate">29 Oct 2026</span> and opens the same deep-zoom images.</p>
-    <p>The Ortelius texts were transcribed and translated by an AI model, Claude Opus 5.5, reading Internet Archive's scan of the Boston Public Library copy, then scored against Marcel van den Broecke's edition at orteliusmaps.com. They are a test of the method and have not yet been reviewed by a specialist. Specialists can check and correct them, label by label, in <a href="review/">review mode</a> (password for the project's reviewers). The Ricci and Miller maps are feature demonstrations from September 2026, with illustrative texts.</p>
+    <p>The Ortelius texts were transcribed and translated by an AI model, Claude Opus 5.5, reading Internet Archive's scan of the Boston Public Library copy, then scored against Marcel van den Broecke's edition at orteliusmaps.com. The Speed texts, from the Bibliothèque nationale de France copy on Wikimedia Commons, were read the same way and checked against the scan in samples, since no published transcription exists. Both are a test of the method and have not yet been reviewed by a specialist. Specialists can check and correct them, label by label, in <a href="review/">review mode</a> (password for the project's reviewers). The Ricci and Miller maps are feature demonstrations from September 2026, with illustrative texts.</p>
 
     <footer class="footer">Marco-Map · HKUST · viewer built with OpenSeadragon 6.1 · <a href="https://github.com/ZENG-LingBo/Marco-Map">source and documentation on GitHub</a></footer>
   </div>
@@ -41,15 +41,21 @@
       function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
 
       var list = document.getElementById('catalogueList');
-      fetch('data/catalogue.json').then(function (r) { return r.json(); }).then(function (cat) {
+      // demo/private/ (not published) holds maps whose image rights are not cleared; it exists only on
+      // the computer that built them, so on the public site this request fails and nothing is added
+      var local = fetch('private/catalogue.json').then(function (r) { return r.ok ? r.json() : { maps: [] }; }, function () { return { maps: [] }; });
+      Promise.all([fetch('data/catalogue.json').then(function (r) { return r.json(); }), local]).then(function (res) {
+        var cat = { maps: res[1].maps.concat(res[0].maps) };
         list.innerHTML = '';
         cat.maps.forEach(function (m) {
           var li = el('li');
+          if (m.private) li.classList.add('is-local');
           var img = el('img'); img.src = m.thumbnail; img.alt = m.title.en; img.loading = 'lazy';
           var figure = el('a'); figure.href = 'viewer.html#map=' + m.id; figure.appendChild(img);
           li.appendChild(figure);
           var body = el('div');
-          var lang = m.title.zh ? 'zh' : m.title.la ? 'la' : null;
+          if (m.private) body.appendChild(el('div', 'local-badge', 'On this computer only · not on the public site'));
+          var lang = m.title.zh ? 'zh' : m.title.la ? 'la' : m.title.ru ? 'ru' : null;
           if (lang) { var o = el('div', lang, m.title[lang]); o.lang = lang; body.appendChild(o); }
           body.appendChild(el('div', 'en', m.title.en));
           body.appendChild(el('div', 'meta', m.creator + ' · ' + m.date + ' · ' + m.repository));

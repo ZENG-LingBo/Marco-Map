@@ -18,6 +18,21 @@
       }
     },
     {
+      "id": "speed-1626",
+      "file": "data/speed-1626.json",
+      "title": {
+        "en": "A Newe Mape of Tartary"
+      },
+      "creator": "John Speed, engraved by Dirck Grijp",
+      "date": "London, 1626",
+      "repository": "Bibliothèque nationale de France, via Wikimedia Commons",
+      "thumbnail": "img/speed-1626-thumb.jpg",
+      "summary": "Reading edition. All 43 texts on the map (title, town views, costume figures and 26 notes, from the Dutch voyages to Nova Zembla to the Great Wall) and Speed's description of Tartary printed on the back, each as engraved or printed and in modern spelling. Read from the scan by an AI model (Claude Opus 5.5); the passages checked against the scan match word for word.",
+      "short": {
+        "en": "Speed, Tartary, 1626"
+      }
+    },
+    {
       "id": "ricci-1602",
       "file": "data/ricci-1602.json",
       "title": {

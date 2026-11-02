@@ -39,7 +39,7 @@ For now nothing is stored on a server: the file goes back by e-mail. A shared da
 - It is one shared password, not personal accounts. Anyone can download the ciphertext and guess offline, so keep the password long and random.
 - The map data and tiles the tool opens are the public ones. Personal logins come with Cloudflare Access.
 
-**Maps that aren't public.** `demo/private/` is in `.gitignore` and is never published. `scripts/build_remezov.py` builds the Remezov ethnographic map there, because its image rights are not cleared. Review mode lists it only when run locally: `python -m http.server` in `demo/`, then `/review/`.
+**Maps that aren't public.** `demo/private/` is in `.gitignore` and is never published. `scripts/build_remezov.py` builds the Remezov ethnographic map there, because its image rights are not cleared. The front page, the viewer and review mode list it only when the site runs on the computer that built it (`python -m http.server` in `demo/`), marked "on this computer only"; on the public site the request for `private/catalogue.json` fails and nothing is shown.
 
 Run it locally (the pages fetch their data, so they need a web server):
 
@@ -55,6 +55,7 @@ What is where:
 | Map | Images | Texts |
 |---|---|---|
 | Ortelius 1570 (`data/ortelius-1570.json`) | `demo/tiles/`, cut from Internet Archive's scan of the Boston Public Library copy with `scripts/make_dzi.py` (Internet Archive's own IIIF server took over a second per tile and sometimes stalled) | the model's output as scored in the transcription test, built with `scripts/build_ortelius.py`; boxes around each text drawn by eye, approximate |
+| Speed 1626 (`data/speed-1626.json`) | `demo/tiles/`, cut from the BnF copy (Ge D 22030) on Wikimedia Commons with `scripts/make_dzi.py` | the model's output as checked in the transcription test, built with `scripts/build_speed.py`; map labels pinned at their centres (boxes approximate), back-page paragraphs boxed from the column layout |
 | The collection, 144 maps (`data/collection.json`) | deep zoom from Alexia's S3 bucket `tartary-deepzoom-bucket`; thumbnails copied into `demo/img/thumbs/` | none yet; titles, mapmakers and sources as in her catalogue, from a snapshot of her site's API (`scripts/build_collection.py`) |
 | Ricci 1602, Miller Atlas 1519 | Library of Congress IIIF | illustrative, written for the September prototype; must be checked before publication |
 

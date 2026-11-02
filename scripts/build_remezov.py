@@ -3,9 +3,10 @@
     python scripts/build_remezov.py ../map-test/output
     python scripts/make_dzi.py ../map-test/sources/remezov/remezov_full.jpg demo/private/remezov-1673/tiles/remezov-1673
 
-Writes demo/private/remezov-1673/remezov-1673.json and demo/private/catalogue.json. demo/private/ is
+Writes demo/private/remezov-1673/remezov-1673.json, a thumbnail, and demo/private/catalogue.json,
+which the front page, the viewer and review mode read when the site runs locally. demo/private/ is
 in .gitignore: the image rights for this scan are not cleared ("I have no rights to it", project
-notes), so it is for local review only and never reaches GitHub Pages.
+notes), so it stays on this computer and never reaches GitHub Pages.
 
 The texts are the two agents' output as scored in map-test/results.md. Ids are the agent's side and
 its position in that agent's output (l00, r17, ...), so a corrections file stays valid when this is
@@ -47,6 +48,14 @@ def default_box(label):
     return {"x": x0, "y": y0, "w": min(w, WIDTH - x0), "h": min(h, HEIGHT - y0)}
 
 
+def make_thumb(scan, out):
+    from PIL import Image  # only needed for the thumbnail
+    Image.MAX_IMAGE_PIXELS = None
+    img = Image.open(scan)
+    img.thumbnail((480, 480), Image.LANCZOS)
+    img.convert("RGB").save(out, quality=85, optimize=True)
+
+
 def main(test_output):
     test_output = Path(test_output)
     annotations = []
@@ -80,7 +89,7 @@ def main(test_output):
         "id": "remezov-1673",
         "built": date.today().isoformat(),
         "title": {"en": "Ethnographical map of Siberia (Remezov atlas, sheet 23)"},
-        "short": {"en": "Remezov, ethnographic map (private)"},
+        "short": {"en": "Remezov, ethnographic map (local only)"},
         "creator": "Remezov atlas (Chertezhnaya kniga Sibiri), after a map drawn at Tobolsk in 1673",
         "date": "This copy c. 1699–1701",
         "notice": "Private review copy: image rights not cleared, not for publication. Machine transcription and translation (Claude Opus 5.5, 29 Oct 2026); boxes are approximate.",
@@ -96,10 +105,20 @@ def main(test_output):
     }
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "remezov-1673.json").write_text(json.dumps(out, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    make_thumb(Path(test_output).parent / "sources" / "remezov" / "remezov_full.jpg", OUT / "thumb.jpg")
     (DEMO / "private" / "catalogue.json").write_text(json.dumps({
-        "_comment": "Maps for local review only (demo/private is not published).",
-        "maps": [{"id": "remezov-1673", "file": "private/remezov-1673/remezov-1673.json",
-                  "title": out["title"], "short": out["short"]}],
+        "_comment": "Maps shown only when the site runs locally (demo/private is not published).",
+        "maps": [{
+            "id": "remezov-1673", "file": "private/remezov-1673/remezov-1673.json", "private": True,
+            "title": out["title"], "short": out["short"],
+            "creator": "Remezov atlas, after a map drawn at Tobolsk in 1673", "date": "copy c. 1699–1701",
+            "repository": "Russian State Library; scan by the David Rumsey Map Collection",
+            "thumbnail": "private/remezov-1673/thumb.jpg",
+            "summary": "Reading edition, on this computer only (image rights not cleared). The 113 labels on the map, "
+                       "handwritten Russian, each as written, in modern Russian and in English, read by an AI model that "
+                       "saw only the scan. Against Baddeley's list of the numbered names (1919), 86 of his 94 entries agree. "
+                       "The boxes are approximate, so the pins mark the centre of each label.",
+        }],
     }, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print(f"{len(annotations)} labels -> {OUT / 'remezov-1673.json'}")
 

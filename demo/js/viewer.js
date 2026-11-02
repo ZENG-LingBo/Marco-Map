@@ -10,7 +10,7 @@
   var CATEGORY = {
     cartouche: 'Cartouche', inscription: 'Inscription', toponym: 'Place name',
     diagram: 'Diagram', colophon: 'Colophon', illustration: 'Illustration',
-    cardinal: 'Cardinal point', passage: 'Passage'
+    cardinal: 'Cardinal point', passage: 'Passage', numeral: 'Number'
   };
   /* Maps from the existing site's catalogue (data/collection.json) are addressed as #map=tartary-<n>. */
   var COLLECTION_PREFIX = 'tartary-';
@@ -55,6 +55,11 @@
   }
   function both(obj, sep) { var o = origOf(obj); return o ? o.text + sep + obj.en : obj.en; }
   function byId(id) { return state.map.annotations.filter(function (a) { return a.id === id; })[0]; }
+  /* Maps whose labels carry the number written on the map (Remezov) show that number; others count 1, 2, 3. */
+  function pinText(a) {
+    if (!state.map.annotations.some(function (x) { return x.number != null; })) return String(a.num);
+    return a.number ? String(a.number).replace(/\s*\[\?\]/, '?') : '·';
+  }
   function viewById(id) { return state.map.views.filter(function (v) { return v.id === id; })[0]; }
 
   /* ---------- URL state ---------- */
@@ -90,9 +95,11 @@
 
     Promise.all([
       fetch('data/catalogue.json').then(function (r) { return r.json(); }),
-      fetch('data/collection.json').then(function (r) { return r.json(); })
+      fetch('data/collection.json').then(function (r) { return r.json(); }),
+      // maps in demo/private/ (not published: image rights not cleared) exist only where they were built
+      fetch('private/catalogue.json').then(function (r) { return r.ok ? r.json() : { maps: [] }; }, function () { return { maps: [] }; })
     ]).then(function (res) {
-      var cat = res[0], coll = res[1];
+      var cat = { maps: res[2].maps.concat(res[0].maps) }, coll = res[1];
       state.catalogue = cat;
       var h = readHash();
       var qs = new URLSearchParams(location.search);
@@ -239,11 +246,12 @@
       var r = a.region;
       var rect = vp.imageToViewportRectangle(new OpenSeadragon.Rect(r.x, r.y, r.w, r.h));
 
-      var box = el('div', 'region');
+      // an approximate box is only a default size round the label's centre, so it is not drawn
+      var box = el('div', 'region' + (a.region_approx ? ' is-approx' : ''));
       box.dataset.id = a.id;
       state.viewer.addOverlay({ element: box, location: rect });
 
-      var pin = el('button', 'pin', String(a.num));
+      var pin = el('button', 'pin', pinText(a));
       pin.type = 'button';
       pin.dataset.id = a.id;
       pin.setAttribute('aria-label', a.label.en);
@@ -318,7 +326,7 @@
     var root = state.els.readingInner;
     root.innerHTML = '';
     var eyebrow = el('div', 'eyebrow');
-    eyebrow.appendChild(el('span', null, (CATEGORY[a.category] || a.category) + ' · no. ' + a.num + ' · ' + viewById(a.view).label.en));
+    eyebrow.appendChild(el('span', null, (CATEGORY[a.category] || a.category) + (a.number != null ? (a.number ? ' · map no. ' + a.number : ' · no number') : ' · no. ' + a.num) + ' · ' + viewById(a.view).label.en));
     var close = el('button', 'close', 'Close ×');
     close.type = 'button';
     close.addEventListener('click', closePanel);
@@ -346,8 +354,8 @@
     var hasOriginal = t.original && t.original !== '(no text)';
     var tabs = [];
     if (hasOriginal) tabs.push({ key: 'original', label: t.lang === 'zh' ? '原文 Original' : 'Original' });
-    if (t.expanded) tabs.push({ key: 'expanded', label: 'Expanded' });
-    if (t.translation) tabs.push({ key: 'translation', label: 'Translation' });
+    if (t.expanded) tabs.push({ key: 'expanded', label: t.lang === 'ru' ? 'Modern Russian' : 'Expanded' });
+    if (t.translation) tabs.push({ key: 'translation', label: t.lang === 'en' ? 'Modern spelling' : 'Translation' });
     if (t.commentary) tabs.push({ key: 'commentary', label: 'Commentary' });
     if (t.source && t.source.length) tabs.push({ key: 'source', label: 'Source' });
 
@@ -367,8 +375,8 @@
 
     if (hasOriginal) {
       var p = el('div', 'tabpanel');
-      var orig = el('div', 'original' + (t.lang === 'zh' ? '' : ' latin'), t.original);
-      orig.lang = t.lang === 'zh' ? 'zh' : 'la';
+      var orig = el('div', 'original' + (t.lang === 'zh' ? '' : t.lang === 'ru' ? ' ru' : ' latin'), t.original);
+      orig.lang = t.lang || 'la';
       if (t.lang === 'zh') {
         if (state.vertical) orig.classList.add('vertical');
         var vbtn = el('button', 'btn', state.vertical ? 'Horizontal' : 'Vertical (直排)');
@@ -385,8 +393,8 @@
     }
     if (t.expanded) {
       var pe = el('div', 'tabpanel'); pe.hidden = true;
-      pe.appendChild(el('p', 'note', 'Abbreviations written out; spelling as on the map.'));
-      var ex = el('div', 'original latin', t.expanded); ex.lang = t.lang;
+      pe.appendChild(el('p', 'note', t.lang === 'ru' ? 'In modern Russian spelling, abbreviations written out.' : 'Abbreviations written out; spelling as on the map.'));
+      var ex = el('div', 'original ' + (t.lang === 'ru' ? 'ru' : 'latin'), t.expanded); ex.lang = t.lang;
       pe.appendChild(ex);
       panels.expanded = pe; root.appendChild(pe);
     }
@@ -479,7 +487,7 @@
       anns.forEach(function (a) {
         var li = el('li');
         li.dataset.id = a.id; li.dataset.category = a.category; li.tabIndex = 0;
-        li.appendChild(el('span', 'num', String(a.num)));
+        li.appendChild(el('span', 'num', pinText(a)));
         var body = el('div');
         var o = origEl('div', a.label);
         if (o) body.appendChild(o);

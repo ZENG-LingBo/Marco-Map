@@ -371,3 +371,8 @@ input[type="range"] { accent-color: var(--accent); }
 @media (max-width: 1100px) { .review-page { --panel-w: 400px; --index-w: 240px; } .legend { display: none; } }
 .review-page.drawing .pin { pointer-events: none; }
 .review-page.drawing #osd { cursor: crosshair; }
+/* maps from demo/private/, listed only when the site runs locally */
+.catalogue-list li.is-local { background: rgba(194, 124, 14, 0.06); box-shadow: -1.25rem 0 0 rgba(194, 124, 14, 0.06), 1.25rem 0 0 rgba(194, 124, 14, 0.06); }
+.local-badge { display: inline-block; font-family: var(--sans); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: #7a4d06; background: rgba(194, 124, 14, 0.16); padding: 0.15rem 0.45rem; border-radius: 2px; margin-bottom: 0.4rem; }
+/* the viewer does not draw approximate boxes (review mode shows them dashed, to be redrawn) */
+body:not(.review-page) .region.is-approx { display: none !important; } /* OpenSeadragon sets display inline on overlays */
