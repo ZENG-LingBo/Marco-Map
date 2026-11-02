@@ -50,6 +50,13 @@ cd demo && python3 -m http.server 8000
 
 Publish it: enable **Settings → Pages → Source: GitHub Actions** once; `.github/workflows/pages.yml` then deploys `demo/` on every push to the default branch, at `https://zeng-lingbo.github.io/Marco-Map/`.
 
+**mappingtartary.com** (since 2 Nov 2026) serves the same `demo/` folder from Cloudflare Workers as static files.
+- `wrangler.jsonc` names the Worker (`mapping-tartary`) and attaches `mappingtartary.com` and `www.mappingtartary.com` as custom domains. The domain was registered through Cloudflare Registrar for three years, and its zone is in the same Cloudflare account.
+- `demo/.assetsignore` keeps `demo/private/` out of the upload. The upload list can be checked with `WRANGLER_LOG=debug npm run check`.
+- To deploy: `npm install` once, then `npm run deploy`. Wrangler signs in through the browser the first time.
+- GitHub Pages is not involved, so pushing to GitHub does not update the domain; run `npm run deploy` after each change.
+- Cloudflare serves `viewer.html` at `/viewer`, and its redirect keeps the `#map=…` part of a link.
+
 What is where:
 
 | Map | Images | Texts |

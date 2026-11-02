@@ -1,0 +1,4 @@
+# Files Wrangler must not upload to Cloudflare (same format as .gitignore).
+# Maps whose image rights are not cleared: local review only.
+private/
+.assetsignore
