@@ -43,7 +43,7 @@
    "label": {
     "en": "As scanned"
    },
-   "tileSource": "https://tartary-deepzoom-bucket.s3.ap-northeast-1.amazonaws.com/991815158805867_ayer_ms_map_30_sheet_115-view.dzi?viewer=marco-map",
+   "tileSource": "https://tiles.mappingtartary.com/991815158805867_ayer_ms_map_30_sheet_115-view.dzi",
    "width": 9061,
    "height": 6772
   }

@@ -4,7 +4,8 @@ The existing site (https://tartary.vercel.app) reads its catalogue from a Railwa
 images from S3, all in Alexia's personal accounts. A snapshot of the API is kept outside this
 repository; this script turns it into one file the demo can serve itself, and copies the
 thumbnails into demo/img/thumbs so the front page does not load them from her bucket on every
-visit. The deep-zoom tiles still come from her bucket.
+visit. The deep-zoom tiles are served from project storage, a copy of her bucket's tiles under
+the same keys (scripts/mirror_tiles.py, scripts/upload_tiles.py), so only the host in the URL changes.
 
     python scripts/build_collection.py ../site-snapshot
 
@@ -30,6 +31,13 @@ DEMO = Path(__file__).resolve().parent.parent / "demo"
 OUT = DEMO / "data" / "collection.json"
 THUMBS = DEMO / "img" / "thumbs"
 THUMB_MAX = 400  # px, longest side; the grid shows them at about 170 px wide
+S3_TILES = "https://tartary-deepzoom-bucket.s3.ap-northeast-1.amazonaws.com/"
+TILES = "https://tiles.mappingtartary.com/"
+
+
+def tiles_url(url):
+    assert url.startswith(S3_TILES), url
+    return TILES + url[len(S3_TILES):]
 
 
 def fetch_thumb(url, n):
@@ -61,7 +69,7 @@ def main(snapshot):
             "authors": [a.strip() for a in row["authors"] or []],
             "sources": [s.strip() for s in row["sources"] or [] if s.strip() not in ("", "0")],
             "thumb": fetch_thumb(row["thumb_path"], row["map_id"]),
-            "dzi": record["dzi_url"],
+            "dzi": tiles_url(record["dzi_url"]),
         })
     maps.sort(key=lambda m: (int(re.match(r"\d{4}", m["year"])[0]) if re.match(r"\d{4}", m["year"]) else 9999, m["n"]))
     out = {

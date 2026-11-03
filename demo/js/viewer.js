@@ -14,14 +14,6 @@
   };
   /* Maps from the existing site's catalogue (data/collection.json) are addressed as #map=tartary-<n>. */
   var COLLECTION_PREFIX = 'tartary-';
-  /* Its tiles are in an S3 bucket that sends the CORS header (and Vary: Origin) only when a request
-     asks for it. A browser that has cached a tile fetched without CORS, as the existing site fetches
-     them, can reuse that copy for this viewer's CORS request, which then fails (seen in a browser that
-     does not partition its cache by site; most current browsers do). A query string of our
-     own gives these requests their own cache entries; OpenSeadragon carries a query on the .dzi URL
-     over to every tile URL, and S3 ignores it. Not needed once the tiles are served with the CORS
-     header on every response (docs/01-migration-runbook.md, step 5). */
-  var COLLECTION_TILE_QUERY = '?viewer=marco-map';
   /* The phone layout (the same query is in css/demo.css): narrow screens, and phones held sideways. */
   var PHONE = '(max-width: 768px), (max-height: 500px) and (pointer: coarse)';
 
@@ -160,7 +152,7 @@
         credit: 'Image: ' + (source || 'source not recorded') + ', via the TARTARY Project',
         url: coll.source + '/maps/' + m.n
       },
-      views: [{ id: 'map', label: { en: 'Map' }, tileSource: m.dzi + COLLECTION_TILE_QUERY }],
+      views: [{ id: 'map', label: { en: 'Map' }, tileSource: m.dzi }],
       annotations: []
     };
   }

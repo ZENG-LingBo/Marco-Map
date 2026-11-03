@@ -1,14 +1,23 @@
 # 01 · Migration runbook: taking the site over, properly
 
 **Audience:** Ling Bo (technical). The plain-language version for Prof. Caboara is [00-brief-for-prof-marco.md](00-brief-for-prof-marco.md).
-**Status:** written before access to Alexia's repository. Steps marked ☐ are to be executed once the GitHub invite and bucket details arrive; nothing here has been run yet.
+**Status:** written before access to Alexia's repository. Steps marked ☐ are to be executed once the GitHub invite and bucket details arrive.
+
+**Update, 3 Nov 2026: the tiles (§4–5) were moved without Alexia's help.** All 144 maps are now in the R2 bucket `mapping-tartary-tiles`, served from `tiles.mappingtartary.com`, and `demo/data/*.json` point there. What differed from the plan below:
+- **Size.** 117,779 tiles, **1.5 GB**; the 200 GB was an estimate made before anyone measured. That fits R2's free tier (10 GB), so storage costs nothing and the figures in §0, §4 and `03-cost-estimate.md` are far too high for this collection.
+- **No key from Alexia.** Her bucket can't be listed but its tiles are public, so `scripts/mirror_tiles.py` computes every tile URL from each `.dzi` descriptor and downloads it (16 connections). That cost her account about 1.5 GB of download traffic, which AWS's free 100 GB a month should cover unless her account already uses it.
+- **The upload.** Wrangler's `r2 bulk put` is capped by Cloudflare's API limit (1,200 requests per 5 minutes, about 4 objects a second, 8 hours in all). rclone through R2's S3 endpoint took about 13 minutes. `scripts/setup_rclone_r2.ps1` stores the R2 key pair in rclone without it being typed into a chat or a file. Delete the token afterwards.
+- **CORS.** `scripts/r2-cors.json` on the bucket is enough. R2 sends `Vary: Origin` and Cloudflare's cache honours it, so a cached copy fetched without an Origin header is not served to a CORS request (tested); the Transform Rule in §5 is not needed.
+- **Check.** `scripts/check_tiles.py <mirror dir> --base https://tiles.mappingtartary.com` found 0 problems in all 117,923 files (tiles and descriptors), and all 144 maps load in a browser.
+- **Whose account.** The bucket is in the Cloudflare account that holds the domain, which is Ling Bo's personal one. Move both to the project account as §1 says; the local mirror holds everything needed to refill a bucket.
+- **Not done:** the code, GitHub and Vercel steps (§2–3), the second backup copy (§6), and the original scans.
 
 ## 0. What we are moving
 
 | Asset | Where it is today | Where it goes |
 |---|---|---|
 | Web app code | Alexia's personal GitHub repo (Vercel-deployed) | `Marco-Map` under a project-owned GitHub organisation |
-| Map tiles, 144 maps, ~200 GB (plan for 300 GB) | Alexia's personal AWS S3 bucket (free tier) | Cloudflare R2 bucket in the project's Cloudflare account, served from `tiles.<domain>` |
+| Map tiles, 144 maps, ~200 GB (plan for 300 GB; measured on 3 Nov: 1.5 GB) | Alexia's personal AWS S3 bucket (free tier) | Cloudflare R2 bucket in the project's Cloudflare account, served from `tiles.<domain>` |
 | Deployment | Alexia's Vercel Hobby project | Cloudflare Pages (static) or Vercel Pro team (if the app needs server features) |
 | Original scans, metadata sheet, tiling script | Alexia's machine / unknown | Offline archive (Ling Bo's NAS) **and** a cloud backup |
 

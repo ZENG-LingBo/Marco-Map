@@ -24,7 +24,8 @@ from pathlib import Path
 
 OUT = Path(__file__).resolve().parent.parent / "demo" / "data" / "frru-1680.json"
 W, H = 9061, 6772
-AS_SCANNED = "https://tartary-deepzoom-bucket.s3.ap-northeast-1.amazonaws.com/991815158805867_ayer_ms_map_30_sheet_115-view.dzi?viewer=marco-map"
+# the TARTARY Project's tiles of the same scan, copied to project storage (scripts/mirror_tiles.py)
+AS_SCANNED = "https://tiles.mappingtartary.com/991815158805867_ayer_ms_map_30_sheet_115-view.dzi"
 
 
 def key(text):
