@@ -5,6 +5,7 @@
   "short": { "zh": "米勒地圖集 1519", "en": "Miller Atlas, 1519" },
   "creator": "Lopo Homem, Pedro Reinel and Jorge Reinel (cartographers); António de Holanda (illuminator); made for King Manuel I of Portugal",
   "date": "Portugal, 1519",
+  "notice": "Demo content: transcriptions and translations are illustrative and must be checked before publication.",
   "catalogue": {
     "repository": "Bibliothèque nationale de France, Département des Cartes et plans (original); digitised copy via Library of Congress / World Digital Library",
     "reference": "BnF GE DD-683; LoC item 2021668718 (WDL 18560)",

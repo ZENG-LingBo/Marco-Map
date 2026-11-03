@@ -1,0 +1,8 @@
+# Maps whose image rights are not cleared: kept for local review only, never published
+demo/private/
+# Plain source of the password-protected review section; only its encrypted build (demo/review/) is published.
+# The build contains the full source, so it can be recovered by decrypting it with the password.
+review-src/
+# Wrangler (Cloudflare deploy tool) and its local state
+node_modules/
+.wrangler/

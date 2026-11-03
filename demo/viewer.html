@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Map viewer · Marco-Map demo</title>
+  <title>Map viewer · Mapping Tartary</title>
   <meta name="description" content="Deep-zoom map viewer with annotated original text, translation and commentary; front/back switch; guided tour.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Noto+Serif+TC:wght@400;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="icon" href="data:,">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/demo.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/openseadragon/6.1.1/openseadragon.min.js"></script>
 </head>
 <body class="viewer-page">
   <header class="topbar">
-    <a class="brand" href="index.html">Marco-Map · demo</a>
+    <a class="brand" href="index.html">Mapping Tartary</a>
     <div class="title">
       <span class="zh" id="titleZh" lang="zh"></span>
       <span class="en" id="titleEn"></span>
@@ -23,7 +23,7 @@
     <div class="controls">
       <select id="mapSelect" class="select" aria-label="Choose a map"></select>
       <div class="btn-group" id="viewSwitch" role="group" aria-label="Side of the map"></div>
-      <div class="btn-group" role="group" aria-label="Guided tour">
+      <div class="btn-group" id="tourGroup" role="group" aria-label="Guided tour">
         <button class="btn" id="tourPrev" type="button" title="Previous annotation (,)">‹ Prev</button>
         <button class="btn" id="tourPlay" type="button" aria-pressed="false" title="Play the tour (p)">Play tour</button>
         <button class="btn" id="tourNext" type="button" title="Next annotation (.)">Next ›</button>
@@ -42,7 +42,7 @@
         <select id="filter" class="select" aria-label="Filter by category"></select>
       </div>
       <ol class="index-list" id="indexList"></ol>
-      <div class="index-foot">Numbers match the pins on the map. Press <kbd>E</kbd> for author mode to add a region.</div>
+      <div class="index-foot">Numbers match the pins on the map.</div>
     </aside>
 
     <main class="stage" id="stage">
@@ -57,8 +57,9 @@
           <button class="btn" id="zoomOut" type="button" title="Zoom out">−</button>
           <button class="btn" id="zoomHome" type="button" title="Fit the whole map (h)">Fit</button>
         </div>
+        <button class="btn" id="fullScreen" type="button" aria-pressed="false" title="Fill the screen, e.g. on a projector (f)">Full screen</button>
         <button class="btn" id="labelsToggle" type="button" aria-pressed="false" title="Draw the English label over each region (l)">Translated labels</button>
-        <label><span>Opacity</span><input type="range" id="labelOpacity" min="0.3" max="1" step="0.05" value="0.92" aria-label="Label opacity"></label>
+        <label class="opacity-ctl"><span>Label opacity</span><input type="range" id="labelOpacity" min="0.3" max="1" step="0.05" value="0.92" aria-label="Label opacity"></label>
         <span class="spacer"></span>
         <span id="credit"></span>
       </div>
@@ -70,6 +71,7 @@
   </div>
 
   <div class="help hidden" id="help" role="dialog" aria-label="Keyboard shortcuts">
+    <button class="close" id="helpClose" type="button">Close ×</button>
     <h3>Keyboard</h3>
     <table>
       <tr><td><kbd>,</kbd> <kbd>.</kbd></td><td>previous / next annotation</td></tr>
@@ -78,6 +80,7 @@
       <tr><td><kbd>e</kbd></td><td>author mode: drag to copy a region</td></tr>
       <tr><td><kbd>i</kbd></td><td>show or hide the index</td></tr>
       <tr><td><kbd>h</kbd></td><td>fit the whole map</td></tr>
+      <tr><td><kbd>f</kbd></td><td>full screen, e.g. on a projector</td></tr>
       <tr><td><kbd>Esc</kbd></td><td>close panel, help or author mode</td></tr>
       <tr><td>mouse</td><td>drag to pan, wheel or double-click to zoom</td></tr>
     </table>

@@ -2,20 +2,25 @@
    Vanilla JavaScript on top of OpenSeadragon. Everything the page shows comes from
    data/catalogue.json and one map file (data/<map>.json). No build step.
    Keyboard: , . previous/next annotation · p play/pause tour · l translated labels ·
-   e author mode · i index · ? help · Esc close. */
+   e author mode · i index · f full screen · ? help · Esc close. */
 (function () {
   'use strict';
 
   var OSD_IMAGES = 'https://cdnjs.cloudflare.com/ajax/libs/openseadragon/6.1.1/images/';
   var CATEGORY = {
     cartouche: 'Cartouche', inscription: 'Inscription', toponym: 'Place name',
-    diagram: 'Diagram', colophon: 'Colophon', illustration: 'Illustration'
+    diagram: 'Diagram', colophon: 'Colophon', illustration: 'Illustration',
+    cardinal: 'Cardinal point', passage: 'Passage', numeral: 'Number', placename: 'Towns, rivers and lakes', graticule: 'Degree numbers'
   };
+  /* Maps from the existing site's catalogue (data/collection.json) are addressed as #map=tartary-<n>. */
+  var COLLECTION_PREFIX = 'tartary-';
+  /* The phone layout (the same query is in css/demo.css): narrow screens, and phones held sideways. */
+  var PHONE = '(max-width: 768px), (max-height: 500px) and (pointer: coarse)';
 
   var state = {
     catalogue: null, map: null, viewId: null, viewer: null,
     current: null, filter: 'all', labelsOn: false, labelOpacity: 0.92,
-    tour: { list: [], index: -1, timer: null },
+    tour: { list: [], timer: null },
     author: { on: false, tracker: null, start: null, box: null },
     pending: null, vertical: false, els: {}
   };
@@ -28,7 +33,28 @@
     if (text != null) e.textContent = text;
     return e;
   }
+  /* The original-language form of a title or label: Chinese (zh), Latin (la), Russian (ru) or French (fr). Collection maps have none. */
+  function origOf(obj) {
+    if (obj && obj.zh) return { text: obj.zh, lang: 'zh' };
+    if (obj && obj.la) return { text: obj.la, lang: 'la' };
+    if (obj && obj.ru) return { text: obj.ru, lang: 'ru' };
+    if (obj && obj.fr) return { text: obj.fr, lang: 'fr' };
+    return null;
+  }
+  function origEl(tag, obj) {
+    var o = origOf(obj);
+    if (!o) return null;
+    var e = el(tag, o.lang, o.text);
+    e.lang = o.lang;
+    return e;
+  }
+  function both(obj, sep) { var o = origOf(obj); return o ? o.text + sep + obj.en : obj.en; }
   function byId(id) { return state.map.annotations.filter(function (a) { return a.id === id; })[0]; }
+  /* Maps whose labels carry the number written on the map (Remezov) show that number; others count 1, 2, 3. */
+  function pinText(a) {
+    if (!state.map.annotations.some(function (x) { return x.number != null; })) return String(a.num);
+    return a.number ? String(a.number).replace(/\s*\[\?\]/, '?') : '·';
+  }
   function viewById(id) { return state.map.views.filter(function (v) { return v.id === id; })[0]; }
 
   /* ---------- URL state ---------- */
@@ -57,27 +83,29 @@
   /* ---------- Boot ---------- */
   function boot() {
     ['osd', 'indexList', 'filter', 'readingInner', 'viewSwitch', 'tourPrev', 'tourNext', 'tourPlay',
-      'tourStatus', 'labelsToggle', 'labelOpacity', 'zoomIn', 'zoomOut', 'zoomHome', 'help', 'helpToggle',
-      'about', 'indexToggle', 'tooltip', 'toast', 'authorHint', 'stageNote', 'titleZh', 'titleEn',
+      'tourStatus', 'labelsToggle', 'labelOpacity', 'zoomIn', 'zoomOut', 'zoomHome', 'help', 'helpToggle', 'helpClose',
+      'about', 'indexToggle', 'fullScreen', 'tooltip', 'toast', 'authorHint', 'stageNote', 'titleZh', 'titleEn',
       'mapSelect', 'workspace', 'index', 'stage', 'credit'
     ].forEach(function (id) { state.els[id] = document.getElementById(id); });
 
-    fetch('data/catalogue.json').then(function (r) { return r.json(); }).then(function (cat) {
+    Promise.all([
+      fetch('data/catalogue.json').then(function (r) { return r.json(); }),
+      fetch('data/collection.json').then(function (r) { return r.json(); }),
+      // maps in demo/private/ (not published: image rights not cleared) exist only where they were built
+      fetch('private/catalogue.json').then(function (r) { return r.ok ? r.json() : { maps: [] }; }, function () { return { maps: [] }; })
+    ]).then(function (res) {
+      var cat = { maps: res[2].maps.concat(res[0].maps) }, coll = res[1];
       state.catalogue = cat;
       var h = readHash();
       var qs = new URLSearchParams(location.search);
-      var wanted = h.get('map') || qs.get('map') || cat.maps[0].id;
-      var entry = cat.maps.filter(function (m) { return m.id === wanted; })[0] || cat.maps[0];
-      cat.maps.forEach(function (m) {
-        var o = el('option', null, (m.short && m.short.en) || m.title.en);
-        o.value = m.id;
-        if (m.id === entry.id) o.selected = true;
-        state.els.mapSelect.appendChild(o);
-      });
-      state.els.mapSelect.addEventListener('change', function () {
-        location.hash = 'map=' + state.els.mapSelect.value;
-        location.reload();
-      });
+      // with no map named, open the first published map, not a local one listed ahead of it
+      var first = res[0].maps[0];
+      var wanted = h.get('map') || qs.get('map') || first.id;
+      var entry = cat.maps.filter(function (m) { return m.id === wanted; })[0];
+      var record = entry ? null : coll.maps.filter(function (m) { return COLLECTION_PREFIX + m.n === wanted; })[0];
+      if (!entry && !record) entry = first;
+      fillMapSelect(cat, coll, entry ? entry.id : wanted);
+      if (record) { loadMap(mapFromCollection(record, coll), h); return; }
       return fetch(entry.file).then(function (r) { return r.json(); }).then(function (map) { loadMap(map, h); });
     }).catch(function (err) {
       state.els.readingInner.innerHTML = '<p class="placeholder">Could not load the demo data (' + err.message +
@@ -85,12 +113,60 @@
     });
   }
 
+  function fillMapSelect(cat, coll, current) {
+    var sel = state.els.mapSelect;
+    function add(parent, id, text) {
+      var o = el('option', null, text);
+      o.value = id;
+      if (id === current) o.selected = true;
+      parent.appendChild(o);
+    }
+    var g1 = el('optgroup'); g1.label = 'Annotated';
+    cat.maps.forEach(function (m) { add(g1, m.id, (m.short && m.short.en) || m.title.en); });
+    var g2 = el('optgroup'); g2.label = 'Collection (' + coll.maps.length + ' maps)';
+    coll.maps.forEach(function (m) { add(g2, COLLECTION_PREFIX + m.n, collectionLabel(m)); });
+    sel.appendChild(g1); sel.appendChild(g2);
+    sel.addEventListener('change', function () {
+      location.hash = 'map=' + sel.value;
+      location.reload();
+    });
+  }
+  function collectionLabel(m) {
+    var t = m.title || 'Untitled';
+    return m.year + ' ' + m.authors.join(', ') + ' · ' + (t.length > 50 ? t.slice(0, 48) + '…' : t);
+  }
+
+  /* A collection record carries only what the existing site's catalogue holds: no annotations. */
+  function mapFromCollection(m, coll) {
+    var source = m.sources.join(', ');
+    return {
+      id: COLLECTION_PREFIX + m.n,
+      title: { en: m.title || 'Untitled' },
+      creator: m.authors.join(', '),
+      date: m.year,
+      description: 'From the TARTARY Project collection (no. ' + m.n + '), as catalogued on the project\'s first site. ' +
+        'This map has no transcription or translation yet.',
+      catalogue: {
+        repository: source,
+        reference: 'TARTARY Project, map ' + m.n,
+        credit: 'Image: ' + (source || 'source not recorded') + ', via the TARTARY Project',
+        url: coll.source + '/maps/' + m.n
+      },
+      views: [{ id: 'map', label: { en: 'Map' }, tileSource: m.dzi }],
+      annotations: []
+    };
+  }
+
   function loadMap(map, h) {
     state.map = map;
     map.annotations.forEach(function (a, i) { a.num = i + 1; });
-    document.title = map.title.en + ' · Marco-Map demo';
-    state.els.titleZh.textContent = map.title.zh;
+    document.title = map.title.en + ' · Mapping Tartary';
+    var t = origOf(map.title);
+    state.els.titleZh.textContent = t ? t.text : '';
+    state.els.titleZh.lang = t ? t.lang : '';
+    state.els.titleZh.className = t ? t.lang : 'hidden';
     state.els.titleEn.textContent = map.title.en;
+    document.body.classList.toggle('no-annotations', !map.annotations.length);
     state.els.credit.textContent = map.catalogue.credit;
     renderViewSwitch();
     renderIndex();
@@ -146,7 +222,7 @@
     if (!view) return;
     state.viewId = id;
     $$('#viewSwitch .btn').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.view === id)); });
-    state.els.stageNote.textContent = view.label.zh + ' · ' + view.label.en + (view.note ? ' — ' + view.note : '');
+    state.els.stageNote.textContent = both(view.label, ' · ') + (view.note ? ' — ' + view.note : '');
     state.viewer.clearOverlays();
     state.viewer.open(view.tileSource);
   }
@@ -167,11 +243,12 @@
       var r = a.region;
       var rect = vp.imageToViewportRectangle(new OpenSeadragon.Rect(r.x, r.y, r.w, r.h));
 
-      var box = el('div', 'region');
+      // an approximate box is only a default size round the label's centre, so it is not drawn
+      var box = el('div', 'region' + (a.region_approx ? ' is-approx' : ''));
       box.dataset.id = a.id;
       state.viewer.addOverlay({ element: box, location: rect });
 
-      var pin = el('button', 'pin', String(a.num));
+      var pin = el('button', 'pin', pinText(a));
       pin.type = 'button';
       pin.dataset.id = a.id;
       pin.setAttribute('aria-label', a.label.en);
@@ -207,7 +284,20 @@
     var r = a.region, pad = 0.35;
     var rect = state.viewer.viewport.imageToViewportRectangle(
       new OpenSeadragon.Rect(r.x - r.w * pad, r.y - r.h * pad, r.w * (1 + 2 * pad), r.h * (1 + 2 * pad)));
-    state.viewer.viewport.fitBounds(rect, false);
+    // within the zoom limits, so a small region does not zoom in past the image's resolution
+    state.viewer.viewport.fitBoundsWithConstraints(rect, false);
+  }
+
+  /* Opening the reading panel narrows (on phones, shortens) the stage. OpenSeadragon applies a
+     resize on its next frame by jumping to the view it was heading for, so a fit started before
+     then would not animate, and on phones would be fitted to the taller stage. Fit after it. */
+  function afterStageResize(resizing, fn) {
+    if (!resizing) { fn(); return; }
+    var done = false;
+    function run() { if (!done) { done = true; fn(); } }
+    // 'after-resize' is raised before OpenSeadragon restores its centre and zoom, hence the timeout
+    state.viewer.addOnceHandler('after-resize', function () { setTimeout(run, 0); });
+    setTimeout(run, 300);
   }
 
   /* ---------- Selection ---------- */
@@ -222,12 +312,11 @@
       return;
     }
     state.current = a;
+    revealInFilter(a);
     markActive();
     renderReading(a);
-    openPanel();
-    if (opts.zoom !== false) fitRegion(a);
-    var i = state.tour.list.indexOf(a);
-    if (i >= 0) state.tour.index = i;
+    var resizing = openPanel();
+    if (opts.zoom !== false) afterStageResize(resizing, function () { fitRegion(a); });
     updateTourStatus();
     writeHash({ a: id });
     var li = $('.index-list li[data-id="' + id + '"]');
@@ -246,16 +335,22 @@
     var root = state.els.readingInner;
     root.innerHTML = '';
     var eyebrow = el('div', 'eyebrow');
-    eyebrow.appendChild(el('span', null, (CATEGORY[a.category] || a.category) + ' · no. ' + a.num + ' · ' + viewById(a.view).label.en));
+    eyebrow.appendChild(el('span', null, catName(a.category) + (a.number != null ? (a.number ? ' · map no. ' + a.number : ' · no number') : ' · no. ' + a.num) + ' · ' + viewById(a.view).label.en));
     var close = el('button', 'close', 'Close ×');
     close.type = 'button';
     close.addEventListener('click', closePanel);
     eyebrow.appendChild(close);
     root.appendChild(eyebrow);
 
-    var h2 = el('h2', 'zh', a.label.zh); h2.lang = 'zh';
-    root.appendChild(h2);
+    var h2 = origEl('h2', a.label);
+    if (h2) root.appendChild(h2);
     root.appendChild(el('h3', 'en', a.label.en));
+
+    // set by scripts/apply_corrections.py from the specialists' review; until then the map's own
+    // notice says what the readings are, and its first sentence goes here, before the text
+    var notice = splitNotice(state.map.notice);
+    if (state.map.reviewed || a.review) root.appendChild(reviewBadge(a.review));
+    else if (notice.status) root.appendChild(el('p', 'review-badge', notice.status));
 
     var actions = el('div', 'actions');
     var zoomBtn = el('button', 'btn', 'Zoom to region'); zoomBtn.type = 'button';
@@ -269,9 +364,14 @@
 
     var t = a.text || {};
     var hasOriginal = t.original && t.original !== '(no text)';
+    // a translation is read with the text it translates, so both open together on the first tab;
+    // an English text's modern spelling repeats the same words, so it keeps a tab of its own
+    var withText = t.translation && hasOriginal && t.lang !== 'en';
+    var transLabel = t.lang === 'en' ? 'Modern spelling' : 'Translation';
     var tabs = [];
-    if (hasOriginal) tabs.push({ key: 'original', label: t.lang === 'zh' ? '原文 Original' : 'Original' });
-    if (t.translation) tabs.push({ key: 'translation', label: 'Translation' });
+    if (hasOriginal) tabs.push({ key: 'original', label: t.lang === 'zh' ? '原文 Text' : 'Text' });
+    if (t.expanded) tabs.push({ key: 'expanded', label: t.lang === 'ru' ? 'Modern Russian' : 'Expanded' });
+    if (t.translation && !withText) tabs.push({ key: 'translation', label: transLabel });
     if (t.commentary) tabs.push({ key: 'commentary', label: 'Commentary' });
     if (t.source && t.source.length) tabs.push({ key: 'source', label: 'Source' });
 
@@ -289,10 +389,14 @@
     });
     root.appendChild(tablist);
 
+    function translationInto(p) {
+      t.translation.split('\n').forEach(function (line) { p.appendChild(el('p', 'translation', line)); });
+    }
     if (hasOriginal) {
       var p = el('div', 'tabpanel');
-      var orig = el('div', 'original' + (t.lang === 'zh' ? '' : ' latin'), t.original);
-      orig.lang = t.lang === 'zh' ? 'zh' : 'la';
+      if (withText) p.appendChild(el('div', 'text-label', t.lang === 'zh' ? '原文 Original' : 'Original'));
+      var orig = el('div', 'original' + (t.lang === 'zh' ? '' : t.lang === 'ru' ? ' ru' : ' latin'), t.original);
+      orig.lang = t.lang || 'la';
       if (t.lang === 'zh') {
         if (state.vertical) orig.classList.add('vertical');
         var vbtn = el('button', 'btn', state.vertical ? 'Horizontal' : 'Vertical (直排)');
@@ -305,31 +409,67 @@
         p.appendChild(vbtn);
       }
       p.appendChild(orig);
+      if (withText) {
+        p.appendChild(el('div', 'text-label', transLabel));
+        translationInto(p);
+      }
       panels.original = p; root.appendChild(p);
     }
-    if (t.translation) {
-      var p2 = el('div', 'tabpanel'); p2.hidden = true;
-      t.translation.split('\n').forEach(function (line) { p2.appendChild(el('p', 'translation', line)); });
+    if (t.expanded) {
+      var pe = el('div', 'tabpanel');
+      pe.appendChild(el('p', 'note', t.lang === 'ru' ? 'In modern Russian spelling, abbreviations written out.' : 'Abbreviations written out; spelling as on the map.'));
+      var ex = el('div', 'original ' + (t.lang === 'ru' ? 'ru' : 'latin'), t.expanded); ex.lang = t.lang;
+      pe.appendChild(ex);
+      panels.expanded = pe; root.appendChild(pe);
+    }
+    if (t.translation && !withText) {
+      var p2 = el('div', 'tabpanel');
+      translationInto(p2);
       panels.translation = p2; root.appendChild(p2);
     }
     if (t.commentary) {
-      var p3 = el('div', 'tabpanel'); p3.hidden = true;
+      var p3 = el('div', 'tabpanel');
       t.commentary.split('\n').forEach(function (line) { p3.appendChild(el('p', 'commentary', line)); });
       panels.commentary = p3; root.appendChild(p3);
     }
     if (t.source && t.source.length) {
-      var p4 = el('div', 'tabpanel source'); p4.hidden = true;
+      var p4 = el('div', 'tabpanel source');
       var ol = el('ol');
       t.source.forEach(function (s) { ol.appendChild(el('li', null, s)); });
       p4.appendChild(ol);
       panels.source = p4; root.appendChild(p4);
     }
-    if (!hasOriginal && panels.commentary) {
-      panels.commentary.hidden = false;
-      $$('button', tablist).forEach(function (x) { x.setAttribute('aria-selected', String(x.dataset.tab === 'commentary')); });
-    }
-    root.appendChild(catalogueBlock());
-    root.appendChild(el('p', 'note', 'Demo content: transcriptions and translations are illustrative and must be checked before publication.'));
+    // the first tab is open, whichever kinds of text this annotation has
+    Object.keys(panels).forEach(function (k) { panels[k].hidden = k !== tabs[0].key; });
+
+    if (notice.rest) root.appendChild(el('p', 'note', notice.rest));
+    root.appendChild(scanLine());
+  }
+
+  /* A map's notice opens with what its readings are ("Machine transcription …, not yet reviewed by a
+     specialist."); the rest explains the marks in the text. Split at the end of the first sentence. */
+  function splitNotice(text) {
+    if (!text) return { status: '', rest: '' };
+    var m = /^(.+?\.)\s+(.*)$/.exec(text);
+    return m ? { status: m[1], rest: m[2] } : { status: text, rest: '' };
+  }
+
+  /* Under an annotation, one line on the scan; the full record is under About this map. */
+  function scanLine() {
+    var p = el('p', 'scan-line');
+    var c = state.map.catalogue;
+    if (c.repository) p.appendChild(document.createTextNode('Scan: ' + c.repository + ' · '));
+    var about = el('button', 'link', 'About this map'); about.type = 'button';
+    about.addEventListener('click', showAbout);
+    p.appendChild(about);
+    return p;
+  }
+
+  var REVIEW_TEXT = { accepted: 'Checked by ', corrected: 'Corrected by ', added: 'Added by ', disputed: 'Disputed by ' };
+  function reviewBadge(r) {
+    if (!r) return el('p', 'review-badge', 'Machine reading, not yet checked by a specialist.');
+    var text = (REVIEW_TEXT[r.status] || 'Reviewed by ') + r.by + ', ' + String(r.at).slice(0, 10) + (r.comment ? ': ' + r.comment : '.');
+    return el('p', 'review-badge st-' + r.status, text);
   }
 
   function catalogueBlock() {
@@ -360,20 +500,31 @@
     close.addEventListener('click', closePanel);
     eyebrow.appendChild(close);
     root.appendChild(eyebrow);
-    var h2 = el('h2', 'zh', state.map.title.zh); h2.lang = 'zh';
-    root.appendChild(h2);
+    var h2 = origEl('h2', state.map.title);
+    if (h2) root.appendChild(h2);
     root.appendChild(el('h3', 'en', state.map.title.en));
-    root.appendChild(el('p', 'sans muted', state.map.creator + ' · ' + state.map.date));
+    root.appendChild(el('p', 'sans muted', [state.map.creator, state.map.date].filter(Boolean).join(' · ')));
     state.map.description.split('\n').forEach(function (line) { root.appendChild(el('p', null, line)); });
-    root.appendChild(el('p', 'note', 'Select a numbered pin on the map or an entry in the index to read its original text, translation and commentary. Use the buttons above the map to turn the sheet over or to follow the guided tour.'));
+    if (state.map.annotations.length) {
+      root.appendChild(el('p', 'note', 'Select a numbered pin on the map or an entry in the index to read its original text, translation and commentary. Use the buttons above the map to turn the sheet over or to follow the guided tour.'));
+    }
     root.appendChild(catalogueBlock());
+    if (state.map.notice) root.appendChild(el('p', 'note', state.map.notice));
+    stopTour();
     state.current = null;
     markActive();
+    updateTourStatus();
+    writeHash({});
     openPanel();
   }
 
-  function openPanel() { state.els.workspace.classList.remove('panel-closed'); }
-  function closePanel() { state.els.workspace.classList.add('panel-closed'); }
+  /* Returns true when the panel was closed, i.e. when opening it resizes the stage. */
+  function openPanel() {
+    var ws = state.els.workspace, wasClosed = ws.classList.contains('panel-closed');
+    ws.classList.remove('panel-closed');
+    return wasClosed;
+  }
+  function closePanel() { stopTour(); state.els.workspace.classList.add('panel-closed'); }
 
   /* ---------- Index ---------- */
   function renderIndex() {
@@ -386,12 +537,12 @@
       anns.forEach(function (a) {
         var li = el('li');
         li.dataset.id = a.id; li.dataset.category = a.category; li.tabIndex = 0;
-        li.appendChild(el('span', 'num', String(a.num)));
+        li.appendChild(el('span', 'num', pinText(a)));
         var body = el('div');
-        var zh = el('div', 'zh', a.label.zh); zh.lang = 'zh';
-        body.appendChild(zh);
+        var o = origEl('div', a.label);
+        if (o) body.appendChild(o);
         var en = el('div', 'en', a.label.en);
-        en.appendChild(el('span', 'cat', CATEGORY[a.category] || a.category));
+        en.appendChild(el('span', 'cat', catName(a.category)));
         body.appendChild(en);
         li.appendChild(body);
         li.addEventListener('click', function () { select(a.id, { zoom: true, stopTour: true }); closeIndexOnMobile(); });
@@ -399,38 +550,89 @@
         list.appendChild(li);
       });
     });
+    // each choice says how many entries it lists; the quiet categories, left out of the first, come last
     var cats = {};
-    state.map.annotations.forEach(function (a) { cats[a.category] = true; });
+    state.map.annotations.forEach(function (a) { cats[a.category] = (cats[a.category] || 0) + 1; });
+    var quiet = quietCats().filter(function (c) { return cats[c]; });
+    var keys = Object.keys(cats).filter(function (c) { return quiet.indexOf(c) < 0; }).concat(quiet);
+    var main = state.map.annotations.length - quiet.reduce(function (n, c) { return n + cats[c]; }, 0);
     var sel = state.els.filter;
     sel.innerHTML = '';
-    var all = el('option', null, 'All categories'); all.value = 'all'; sel.appendChild(all);
-    Object.keys(cats).forEach(function (c) { var o = el('option', null, CATEGORY[c] || c); o.value = c; sel.appendChild(o); });
+    var all = el('option', null, (quiet.length ? 'Main entries' : 'All categories') + ' (' + main + ')');
+    all.value = 'all'; sel.appendChild(all);
+    keys.forEach(function (c) { var o = el('option', null, catName(c) + ' (' + cats[c] + ')'); o.value = c; sel.appendChild(o); });
     sel.addEventListener('change', function () { state.filter = sel.value; applyFilter(); });
   }
 
-  function applyFilter() {
+  /* Categories a map lists in "quiet" (e.g. hundreds of place names) are left out of the default
+     view, so they don't bury the notes; choosing the category in the filter shows them. */
+  function quietCats() { return state.map.quiet || []; }
+  /* A map may rename a category for its own content ("categories": {"toponym": "Peoples, regions and seas"}). */
+  function catName(c) { return (state.map.categories && state.map.categories[c]) || CATEGORY[c] || c; }
+  /* How the filter shows an annotation. "away": a quiet category that is not the one chosen, so its
+     pin, box and label are not drawn at all. "off": another category is chosen, so its pin is dimmed
+     and its box, label and index entry are hidden. */
+  function filterState(a) {
     var f = state.filter;
-    $$('.index-list li[data-id]').forEach(function (li) { li.classList.toggle('is-hidden', f !== 'all' && li.dataset.category !== f); });
-    state.map.annotations.forEach(function (a) {
-      var off = f !== 'all' && a.category !== f;
-      $$('.pin[data-id="' + a.id + '"]').forEach(function (p) { p.classList.toggle('is-dim', off); });
-      $$('.region[data-id="' + a.id + '"], .label-ovl[data-id="' + a.id + '"]').forEach(function (n) {
-        n.classList.toggle('hidden', off || (n.classList.contains('label-ovl') && !state.labelsOn));
-      });
+    return { away: quietCats().indexOf(a.category) >= 0 && f !== a.category, off: f !== 'all' && f !== a.category };
+  }
+  function applyFilter() {
+    var states = {};
+    state.map.annotations.forEach(function (a) { states[a.id] = filterState(a); });
+    $$('.index-list li[data-id], .pin, .region, .label-ovl').forEach(function (n) {
+      var s = states[n.dataset.id];
+      if (!s) return;
+      if (n.classList.contains('pin')) {
+        n.classList.toggle('is-dim', s.off && !s.away);
+        n.classList.toggle('hidden', s.away);
+      } else if (n.tagName === 'LI') {
+        n.classList.toggle('is-hidden', s.off || s.away);
+      } else {
+        n.classList.toggle('hidden', s.off || s.away || (n.classList.contains('label-ovl') && !state.labelsOn));
+      }
     });
+    // a side's heading only when some of its entries are listed
+    $$('.index-list li.index-group').forEach(function (g) {
+      var any = false;
+      for (var n = g.nextElementSibling; n && !n.classList.contains('index-group'); n = n.nextElementSibling) {
+        if (!n.classList.contains('is-hidden')) { any = true; break; }
+      }
+      g.classList.toggle('hidden', !any);
+    });
+  }
+  /* The annotation being read is always drawn and listed. One the filter hides or dims (opened from
+     a link, the tour or a dimmed pin) changes the filter: to its category if that is a quiet one,
+     otherwise to all categories. */
+  function revealInFilter(a) {
+    var s = filterState(a);
+    if (!s.away && !s.off) return;
+    state.filter = quietCats().indexOf(a.category) >= 0 ? a.category : 'all';
+    state.els.filter.value = state.filter;
+    applyFilter();
   }
 
   /* ---------- Tour ---------- */
   function buildTour() {
     state.tour.list = state.map.annotations.filter(function (a) { return a.tour !== false; });
-    state.tour.index = -1;
     updateTourStatus();
   }
+  /* Steps from the annotation being read, so the tour follows a pin chosen on the map or in the
+     index. From one that is not a stop it goes to the nearest stop in map order; with nothing
+     selected it starts on the side being shown. */
   function tourStep(dir) {
-    var n = state.tour.list.length;
+    var list = state.tour.list, n = list.length, cur = state.current, i;
     if (!n) return;
-    state.tour.index = ((state.tour.index + dir) % n + n) % n;
-    select(state.tour.list[state.tour.index].id, { zoom: true });
+    if (cur && list.indexOf(cur) >= 0) {
+      i = list.indexOf(cur) + dir;
+    } else if (cur) {
+      for (i = 0; i < n && list[i].num < cur.num; i++);
+      if (dir < 0) i -= 1;
+    } else {
+      var here = list.filter(function (a) { return a.view === state.viewId; });
+      if (!here.length) here = list;
+      i = list.indexOf(dir > 0 ? here[0] : here[here.length - 1]);
+    }
+    select(list[(i % n + n) % n].id, { zoom: true });
   }
   function playTour() {
     if (state.tour.timer) { stopTour(); return; }
@@ -446,16 +648,17 @@
     state.els.tourPlay.setAttribute('aria-pressed', 'false');
   }
   function updateTourStatus() {
-    var n = state.tour.list.length;
-    state.els.tourStatus.textContent = state.tour.index >= 0 ? (state.tour.index + 1) + ' / ' + n : n + ' stops';
+    var n = state.tour.list.length, i = state.current ? state.tour.list.indexOf(state.current) : -1;
+    state.els.tourStatus.textContent = i >= 0 ? (i + 1) + ' / ' + n : n + ' stops';
   }
 
   /* ---------- View switch ---------- */
   function renderViewSwitch() {
     var wrap = state.els.viewSwitch;
     wrap.innerHTML = '';
+    wrap.classList.toggle('hidden', state.map.views.length < 2);  // nothing to switch between
     state.map.views.forEach(function (v) {
-      var b = el('button', 'btn', v.label.zh + ' ' + v.label.en.replace(/\s*\(.*\)$/, '').replace(/:.*$/, ''));
+      var b = el('button', 'btn', both({ zh: v.label.zh, la: v.label.la, en: v.label.en.replace(/\s*\(.*\)$/, '').replace(/:.*$/, '') }, ' '));
       b.type = 'button'; b.dataset.view = v.id; b.title = v.label.en;
       b.addEventListener('click', function () {
         if (state.viewId === v.id) return;
@@ -548,8 +751,8 @@
   function showTooltip(a, pin) {
     var tip = state.els.tooltip;
     tip.innerHTML = '';
-    var zh = el('span', 'zh', a.label.zh); zh.lang = 'zh';
-    tip.appendChild(zh);
+    var o = origEl('span', a.label);
+    if (o) tip.appendChild(o);
     tip.appendChild(document.createTextNode(a.label.en));
     tip.classList.remove('hidden');
     var sr = state.els.stage.getBoundingClientRect();
@@ -561,14 +764,27 @@
   function toggleHelp(force) {
     var h = state.els.help;
     var show = force != null ? force : h.classList.contains('hidden');
+    // just below the top bar, whose height depends on how many rows its controls wrap onto
+    if (show) h.style.top = ($('.topbar').getBoundingClientRect().bottom + 8) + 'px';
     h.classList.toggle('hidden', !show);
     state.els.helpToggle.setAttribute('aria-expanded', String(show));
   }
   function toggleIndex() {
-    if (window.matchMedia('(max-width: 768px)').matches) state.els.index.classList.toggle('is-open');
-    else state.els.workspace.classList.toggle('index-hidden');
+    if (window.matchMedia(PHONE).matches) {
+      // on phones the index covers the map; open it at the entry being read
+      var open = state.els.index.classList.toggle('is-open');
+      var li = open && $('.index-list li.is-active');
+      if (li) li.scrollIntoView({ block: 'center' });
+    } else state.els.workspace.classList.toggle('index-hidden');
   }
   function closeIndexOnMobile() { state.els.index.classList.remove('is-open'); }
+  /* The whole page, not only the map, so the reading panel and the tour stay on a projector's screen.
+     Esc leaves full screen in the browser itself. */
+  function toggleFullScreen() {
+    if (!document.fullscreenEnabled) return;
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen().catch(function () { toast('This browser did not allow full screen'); });
+  }
 
   function bindControls() {
     var e = state.els;
@@ -580,12 +796,26 @@
       state.labelOpacity = Number(e.labelOpacity.value);
       $$('.label-ovl').forEach(function (n) { n.style.opacity = state.labelOpacity; });
     });
-    e.zoomIn.addEventListener('click', function () { state.viewer.viewport.zoomBy(1.5); });
-    e.zoomOut.addEventListener('click', function () { state.viewer.viewport.zoomBy(1 / 1.5); });
+    // zoomBy does not apply the zoom limits itself; OpenSeadragon's own buttons follow it with applyConstraints
+    e.zoomIn.addEventListener('click', function () { state.viewer.viewport.zoomBy(1.5).applyConstraints(); });
+    e.zoomOut.addEventListener('click', function () { state.viewer.viewport.zoomBy(1 / 1.5).applyConstraints(); });
     e.zoomHome.addEventListener('click', function () { state.viewer.viewport.goHome(); });
     e.helpToggle.addEventListener('click', function () { toggleHelp(); });
+    e.helpClose.addEventListener('click', function () { toggleHelp(false); });
+    // a tap or click anywhere else closes the help (capture phase: the map's handlers stop pointer events)
+    document.addEventListener('pointerdown', function (ev) {
+      if (!e.help.classList.contains('hidden') && !e.help.contains(ev.target) && !e.helpToggle.contains(ev.target)) toggleHelp(false);
+    }, true);
     e.about.addEventListener('click', showAbout);
     e.indexToggle.addEventListener('click', toggleIndex);
+    // iPhones offer full screen only for video, so the button is shown only where it works
+    e.fullScreen.classList.toggle('hidden', !document.fullscreenEnabled);
+    e.fullScreen.addEventListener('click', toggleFullScreen);
+    document.addEventListener('fullscreenchange', function () {
+      var on = !!document.fullscreenElement;
+      e.fullScreen.setAttribute('aria-pressed', String(on));
+      e.fullScreen.textContent = on ? 'Exit full screen' : 'Full screen';
+    });
 
     document.addEventListener('keydown', function (ev) {
       var tag = (ev.target.tagName || '').toLowerCase();
@@ -599,6 +829,7 @@
         case 'i': toggleIndex(); break;
         case '?': toggleHelp(); break;
         case 'h': state.viewer.viewport.goHome(); break;
+        case 'f': toggleFullScreen(); break;
         case 'Escape':
           if (!e.help.classList.contains('hidden')) toggleHelp(false);
           else if (state.author.on) toggleAuthor(false);
