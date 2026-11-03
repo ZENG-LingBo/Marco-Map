@@ -2,9 +2,11 @@
 
 Historical Chinese maps online: the takeover plan, feature demos and cost estimate for Prof. Marco Caboara's map project at HKUST.
 
-**Status (27 Sep 2026).** Alexia (TSANG Tze Nam) built the first site; its code, hosting and image tiles are still in her personal accounts and the repository invite is pending. Nothing here touches her code or storage yet. This repository holds the plan to take the project over, a working demonstration of the features Prof. Caboara asked for, and the one-year cost estimate.
+**Status (27 Sep 2026).** Alexia (TSANG Tze Nam) built the first site; its code and hosting are still in her personal accounts and the repository invite is pending. Nothing here changes her code or storage (her image tiles were copied on 3 Nov; see the update below). This repository holds the plan to take the project over, a working demonstration of the features Prof. Caboara asked for, and the one-year cost estimate.
 
-**Update (29 Oct 2026).** For Prof. Caboara's IMCoS lecture in Tokyo on 9 Nov, the demo became a site of its own, "Mapping Tartary", which the project controls; Alexia's site (https://tartary.vercel.app) stays in her personal accounts. The front page lists all 144 maps of her catalogue, opened in this viewer from her image tiles. It also has a first reading edition: Ortelius's *Tartaria* of 1570, with all 40 texts on the map and the description on the back read, expanded and translated by Claude Opus 5.5 and scored against the published edition.
+**Update (29 Oct 2026).** For Prof. Caboara's IMCoS lecture in Tokyo on 9 Nov, the demo became a site of its own, "Mapping Tartary", which the project controls; Alexia's site (https://tartary.vercel.app) stays in her personal accounts. The front page lists all 144 maps of her catalogue, opened in this viewer (at that date still from her image tiles). It also has a first reading edition: Ortelius's *Tartaria* of 1570, with all 40 texts on the map and the description on the back read, expanded and translated by Claude Opus 5.5 and scored against the published edition.
+
+**Update (3 Nov 2026).** The collection's image tiles no longer come from Alexia's S3 bucket: all 117,779 tiles of the 144 maps (1.5 GB) were copied to the project's own storage and are served from `tiles.mappingtartary.com`. Her site is unchanged. What was done, and how it differed from the plan, is at the top of [docs/01-migration-runbook.md](docs/01-migration-runbook.md).
 
 ## Read this first
 
@@ -80,4 +82,4 @@ app/       (later) Alexia's application, imported with its history — see runbo
 
 ## Out of scope for this first pass
 
-Touching Alexia's code or bucket (no access yet); e-mails to Alexia and Prof. Caboara (drafted outside the repository); creating the project accounts (needs Prof. Caboara's decisions); a backend for user-editable annotations (the feature doc names the free tools for that).
+Touching Alexia's code, or changing anything in her bucket (her tiles were only copied, on 3 Nov); e-mails to Alexia and Prof. Caboara (drafted outside the repository); creating the project accounts (needs Prof. Caboara's decisions); a backend for user-editable annotations (the feature doc names the free tools for that).
