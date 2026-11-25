@@ -19,6 +19,23 @@
       }
     },
     {
+      "id": "hondius-1606",
+      "page": "maps/hondius-1606/",
+      "file": "data/hondius-1606.json",
+      "title": {
+        "la": "Tartaria",
+        "en": "Tartary"
+      },
+      "creator": "Jodocus Hondius",
+      "date": "Amsterdam, 1606",
+      "repository": "Map: HKUST Library; text pages: Utrecht University Library",
+      "thumbnail": "img/hondius-1606-thumb.jpg",
+      "summary": "Reading edition. The 100 texts on the map (the address to the reader, notes on Gog and Magog, the tombs of the khans, Christian Tenduc, the Great Wall and asbestos, and the names of peoples and seas) and 323 place names, and the atlas's description of Tartary on pp. 333–334, in Latin and English. Read from the scans by an AI model (Claude Opus 5.5); the description was compared with the project team's transcription, each difference checked on the scan by the AI.",
+      "short": {
+        "en": "Hondius, Tartary, 1606"
+      }
+    },
+    {
       "id": "speed-1626",
       "page": "maps/speed-1626/",
       "file": "data/speed-1626.json",
