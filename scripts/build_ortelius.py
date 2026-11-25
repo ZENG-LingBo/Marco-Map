@@ -8,8 +8,10 @@ viewer needs: a label, a category, a region on the scan and the tour order.
 
 Regions are rectangles in pixels of Internet Archive's full-size images (4334 x 3354 map,
 3317 x 5092 text page). The viewer shows the same images from tiles in demo/tiles, cut with
-scripts/make_dzi.py, because Internet Archive's IIIF server is too slow to rely on in a talk. The model gave the centre of each text; the boxes around those
-centres were drawn by eye on the scan and are approximate. Refine one with author mode (E).
+scripts/make_dzi.py, because Internet Archive's IIIF server is too slow to rely on in a talk. The model gave the centre of each text; the boxes were first drawn by eye
+round those centres, and on 25 Nov 2026 the 40 on the map were fitted to each text's extent on the
+scan, with a 5 px margin. A rectangle can't follow slanted or curved lettering (Imaus, Solitudines,
+the rivers), so there it is the text's bounding rectangle. Refine one with author mode (E).
 """
 import json
 import re
@@ -21,46 +23,46 @@ OUT = Path(__file__).resolve().parent.parent / "demo" / "data" / "ortelius-1570.
 # Map face, in tour order (west to east, then the labels that are not tour stops).
 # id: (English label, category, (x, y, w, h), tour stop)
 MAP = {
-    "title_cartouche": ("Title", "cartouche", (2960, 580, 460, 460), True),
-    "cartouche_bottom_left": ("What the map shows", "cartouche", (540, 2480, 545, 325), True),
-    "hic_magnus_prouentus": ("Sweet flag by the Volga", "inscription", (685, 975, 250, 60), True),
-    "mar_de_bachu": ("The Caspian Sea", "toponym", (485, 1275, 255, 175), False),
-    "hic_rubini": ("Rubies", "inscription", (490, 1600, 110, 75), True),
-    "samarchand": ("Samarkand", "inscription", (920, 1685, 150, 65), True),
-    "turchestan": ("Turchestan and the Ten Tribes", "inscription", (895, 1340, 435, 120), True),
-    "tartaria": ("Tartaria", "inscription", (925, 1115, 790, 155), True),
-    "magnus_cham": ("The Great Khan", "inscription", (1340, 1660, 370, 145), True),
-    "mons_althay": ("Mount Althay, burial place of the khans", "inscription", (1685, 1680, 360, 120), True),
-    "tabor": ("Tabor, and a king who came to France", "inscription", (1560, 1350, 395, 235), True),
-    "danorum_horda": ("Horde of the Danites", "inscription", (1785, 505, 245, 125), True),
-    "nepthalitarum_horda": ("Horde of the Naphtalites", "inscription", (1840, 645, 525, 300), True),
-    "insula_falconum": ("Island of falcons", "inscription", (1980, 990, 140, 75), True),
-    "oceanus_scythicus": ("The Scythian Ocean", "inscription", (2050, 1150, 665, 160), True),
-    "arsareth": ("Arsareth, where the Ten Tribes went", "inscription", (2150, 1620, 410, 130), True),
-    "argon": ("Argon and Prester John", "inscription", (2150, 1770, 410, 185), True),
-    "tangut": ("Tangut and printing", "inscription", (1550, 1985, 255, 85), True),
-    "rhabarbarum": ("Rhubarb", "inscription", (1600, 2155, 135, 80), True),
-    "cambalu": ("Cambalu (Beijing)", "inscription", (1785, 2115, 145, 85), True),
-    "pons_marmoreus": ("A marble bridge", "inscription", (1955, 2165, 135, 65), True),
-    "his_montibus_eruuntur": ("Stones burned for fuel", "inscription", (1820, 2610, 180, 125), True),
-    "quinsai": ("Quinsai (Hangzhou)", "inscription", (2475, 1955, 150, 60), True),
-    "japan_insula": ("Japan", "inscription", (3040, 2640, 345, 185), True),
-    "meaco": ("Meaco (Kyoto)", "inscription", (3115, 2375, 110, 100), True),
-    "minas_de_plata": ("Silver mines", "toponym", (3105, 2280, 100, 55), False),
-    "americae_pars": ("Part of America", "toponym", (3150, 1310, 790, 345), True),
-    "esdras_reference": ("4 Esdras 13", "inscription", (2435, 1565, 75, 55), False),
-    "bargu": ("Bargu, a marshy region", "toponym", (1775, 1095, 135, 85), False),
-    "imaus_mons": ("Mount Imaus", "toponym", (500, 1890, 640, 430), False),
-    "solitudines_vastae": ("Vast wildernesses", "toponym", (1200, 1985, 275, 205), False),
-    "volga_label": ("River Volga", "toponym", (640, 880, 55, 120), False),
-    "tauris_label": ("Tauris (Tabriz)", "toponym", (380, 1495, 75, 55), False),
-    "tabin_label": ("Cape Tabin", "toponym", (2390, 1495, 210, 40), False),
-    "meon_label": ("River Meon", "toponym", (1712, 2775, 60, 145), False),
-    "brior_label": ("River Brior", "toponym", (1420, 2800, 75, 195), False),
-    "septentrio": ("North", "cardinal", (1930, 310, 420, 65), False),
-    "occidens": ("West", "cardinal", (295, 1560, 65, 350), False),
-    "oriens": ("East", "cardinal", (3905, 1515, 80, 235), False),
-    "privilege": ("Privilege", "colophon", (345, 2930, 200, 45), False),
+    "title_cartouche": ("Title", "cartouche", (2965, 588, 455, 455), True),
+    "cartouche_bottom_left": ("What the map shows", "cartouche", (540, 2478, 642, 328), True),
+    "hic_magnus_prouentus": ("Sweet flag by the Volga", "inscription", (693, 970, 242, 65), True),
+    "mar_de_bachu": ("The Caspian Sea", "toponym", (488, 1278, 250, 167), False),
+    "hic_rubini": ("Rubies", "inscription", (491, 1597, 114, 76), True),
+    "samarchand": ("Samarkand", "inscription", (917, 1683, 135, 69), True),
+    "turchestan": ("Turchestan and the Ten Tribes", "inscription", (900, 1340, 400, 114), True),
+    "tartaria": ("Tartaria", "inscription", (923, 1113, 798, 155), True),
+    "magnus_cham": ("The Great Khan", "inscription", (1337, 1660, 285, 135), True),
+    "mons_althay": ("Mount Althay, burial place of the khans", "inscription", (1688, 1683, 343, 120), True),
+    "tabor": ("Tabor, and a king who came to France", "inscription", (1560, 1353, 390, 234), True),
+    "danorum_horda": ("Horde of the Danites", "inscription", (1780, 507, 217, 123), True),
+    "nepthalitarum_horda": ("Horde of the Naphtalites", "inscription", (1850, 643, 455, 292), True),
+    "insula_falconum": ("Island of falcons", "inscription", (1982, 990, 132, 80), True),
+    "oceanus_scythicus": ("The Scythian Ocean", "inscription", (2048, 1155, 663, 164), True),
+    "arsareth": ("Arsareth, where the Ten Tribes went", "inscription", (2148, 1617, 395, 138), True),
+    "argon": ("Argon and Prester John", "inscription", (2153, 1767, 338, 168), True),
+    "tangut": ("Tangut and printing", "inscription", (1502, 1993, 298, 86), True),
+    "rhabarbarum": ("Rhubarb", "inscription", (1600, 2157, 139, 81), True),
+    "cambalu": ("Cambalu (Beijing)", "inscription", (1779, 2108, 155, 93), True),
+    "pons_marmoreus": ("A marble bridge", "inscription", (1959, 2170, 141, 54), True),
+    "his_montibus_eruuntur": ("Stones burned for fuel", "inscription", (1827, 2608, 175, 133), True),
+    "quinsai": ("Quinsai (Hangzhou)", "inscription", (2476, 1950, 147, 66), True),
+    "japan_insula": ("Japan", "inscription", (3038, 2636, 352, 195), True),
+    "meaco": ("Meaco (Kyoto)", "inscription", (3110, 2374, 122, 90), True),
+    "minas_de_plata": ("Silver mines", "toponym", (3089, 2276, 98, 65), False),
+    "americae_pars": ("Part of America", "toponym", (3145, 1310, 760, 350), True),
+    "esdras_reference": ("4 Esdras 13", "inscription", (2416, 1584, 100, 38), False),
+    "bargu": ("Bargu, a marshy region", "toponym", (1765, 1099, 150, 90), False),
+    "imaus_mons": ("Mount Imaus", "toponym", (543, 1896, 642, 455), False),
+    "solitudines_vastae": ("Vast wildernesses", "toponym", (1202, 1951, 303, 250), False),
+    "volga_label": ("River Volga", "toponym", (640, 836, 82, 169), False),
+    "tauris_label": ("Tauris (Tabriz)", "toponym", (353, 1489, 122, 62), False),
+    "tabin_label": ("Cape Tabin", "toponym", (2388, 1493, 215, 41), False),
+    "meon_label": ("River Meon", "toponym", (1714, 2742, 85, 186), False),
+    "brior_label": ("River Brior", "toponym", (1420, 2797, 100, 188), False),
+    "septentrio": ("North", "cardinal", (1944, 315, 399, 49), False),
+    "occidens": ("West", "cardinal", (315, 1580, 46, 331), False),
+    "oriens": ("East", "cardinal", (3923, 1514, 40, 241), False),
+    "privilege": ("Privilege", "colophon", (350, 2935, 196, 49), False),
 }
 
 # Why some published readings were corrected before scoring (map-test/scripts/adjudicate.py).
@@ -190,7 +192,7 @@ def main(out_dir):
 
     m = scores["ortelius_map_textblocks"]
     out = {
-        "_comment": "Generated by scripts/build_ortelius.py from map-test/output. Texts are the model's output as scored; regions are approximate.",
+        "_comment": "Generated by scripts/build_ortelius.py from map-test/output. Texts are the model's output as scored; regions on the map are fitted to each text's extent on the scan, those on the back page are approximate.",
         "id": "ortelius-1570",
         "title": {"la": "Tartariae sive Magni Chami regni typus", "en": "Map of Tartary, or of the Kingdom of the Great Khan"},
         "short": {"en": "Ortelius, Tartary, 1570"},
