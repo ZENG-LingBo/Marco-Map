@@ -3,8 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mapping Tartary</title>
-  <meta name="description" content="European maps of Tartary from the TARTARY Project at HKUST, with a reading edition of Ortelius's 1570 map: every text on it transcribed and translated.">
+  <title>Mapping Tartary: European maps of Tartary (Tartaria), 1519–1783</title>
+  <meta name="description" content="137 European maps of Tartary (Tartaria), 1522–1783, in deep zoom, from the TARTARY Project at HKUST. Reading editions of Ortelius 1570, Speed 1626 and a French-Russian map of Siberia: every text transcribed and translated.">
+  <link rel="canonical" href="https://mappingtartary.com/">
+  <meta property="og:site_name" content="Mapping Tartary">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Mapping Tartary: European maps of Tartary, 1519–1783">
+  <meta property="og:description" content="137 European maps of Tartary in deep zoom, and reading editions of Ortelius, Speed and a French-Russian map of Siberia: every text transcribed and translated.">
+  <meta property="og:url" content="https://mappingtartary.com/">
+  <meta property="og:image" content="https://mappingtartary.com/img/previews/ortelius-1570.jpg">
+  <meta property="og:image:width" content="1600">
+  <meta property="og:image:height" content="1238">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "Mapping Tartary", "url": "https://mappingtartary.com/", "description": "European maps of Tartary from the TARTARY Project at HKUST, with reading editions of their texts."}</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Noto+Serif+TC:wght@400;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
@@ -32,6 +43,7 @@
     <h2 class="section-title">About this site</h2>
     <p>The collection's catalogue and images come from the TARTARY Project's first site, <a href="https://tartary.vercel.app">tartary.vercel.app</a>, built by Alexia Tsang. This page reads a copy of that catalogue taken on <span id="snapshotDate">29 Oct 2026</span>. Its deep-zoom images are copies kept in the project's own storage.</p>
     <p>The Ortelius texts were transcribed and translated by an AI model, Claude Opus 5.5, reading Internet Archive's scan of the Boston Public Library copy, then scored against Marcel van den Broecke's edition at orteliusmaps.com. The Speed texts, from the Bibliothèque nationale de France copy on Wikimedia Commons, were read the same way and checked against the scan in samples, since no published transcription exists. The French-Russian map, from the Newberry Library, has no published transcription at all: its readings are the model's, with a second reading where two parts of the work overlapped. All three are a test of the method and have not yet been reviewed by a specialist. Specialists can check and correct them, label by label, in <a href="review/">review mode</a> (password for the project's reviewers). The Miller Atlas sheet is a feature demonstration from September 2026, with illustrative texts.</p>
+    <p>The reading editions and every map in the collection also have a page of their own, with the reading editions' texts in full: <a href="maps/">all maps, as a list</a>.</p>
 
     <footer class="footer">Mapping Tartary · HKUST · viewer built with OpenSeadragon 6.1 · <a href="https://github.com/ZENG-LingBo/Marco-Map">source and documentation on GitHub</a></footer>
   </div>
@@ -51,7 +63,8 @@
           var li = el('li');
           if (m.private) li.classList.add('is-local');
           var img = el('img'); img.src = m.thumbnail; img.alt = m.title.en; img.loading = 'lazy';
-          var figure = el('a'); figure.href = 'viewer.html#map=' + m.id; figure.appendChild(img);
+          // the picture opens the map's own page where it has one (search engines can't tell viewer.html#map=… addresses apart)
+          var figure = el('a'); figure.href = m.page || 'viewer.html#map=' + m.id; figure.appendChild(img);
           li.appendChild(figure);
           var body = el('div');
           if (m.private) body.appendChild(el('div', 'local-badge', 'On this computer only · not on the public site'));
@@ -63,6 +76,7 @@
           var links = el('div', 'links');
           var v = el('a', 'btn primary', 'Explore the map'); v.href = 'viewer.html#map=' + m.id;
           links.appendChild(v);
+          if (m.page) { var p = el('a', 'btn', 'Read all the texts'); p.href = m.page; links.appendChild(p); }
           if (m.story) { var s = el('a', 'btn', 'Read the narrative'); s.href = 'story.html?map=' + m.id; links.appendChild(s); }
           body.appendChild(links);
           li.appendChild(body);
@@ -80,7 +94,8 @@
         document.getElementById('snapshotDate').textContent = coll.snapshot;
         var items = coll.maps.map(function (m) {
           var li = el('li');
-          var a = el('a'); a.href = 'viewer.html#map=tartary-' + m.n;
+          // each card opens the map's own page (scripts/build_pages.py), which opens the viewer
+          var a = el('a'); a.href = 'maps/tartary-' + m.n + '/';
           var thumb = el('div', 'thumb');
           var img = el('img'); img.src = m.thumb; img.alt = ''; img.loading = 'lazy';
           thumb.appendChild(img);

@@ -43,6 +43,8 @@ For now nothing is stored on a server: the file goes back by e-mail. A shared da
 
 **Maps that aren't public.** `demo/private/` is in `.gitignore` and is never published. `scripts/build_remezov.py` builds the Remezov ethnographic map there, because its image rights are not cleared. The front page, the viewer and review mode list it only when the site runs on the computer that built it (`python -m http.server` in `demo/`), marked "on this computer only"; on the public site the request for `private/catalogue.json` fails and nothing is shown.
 
+**Pages for search engines.** Search engines drop everything after `#` in an address, so to them `viewer.html` is one page, whichever map it shows. `scripts/build_pages.py` gives each map a plain page of its own at `maps/<id>/`: title, mapmaker, date and library, a preview image, and for the reading editions every text with its translation, each linked to its place in the viewer. It also writes `maps/` (a list of all of them), `sitemap.xml` and `robots.txt`. Run it again after changing `data/catalogue.json` (an entry gets a page when it has `"page"`), a reading edition's map file or `data/collection.json`. The Miller Atlas sheet has no page, because its texts are illustrative. The collection's pages show only the existing 400 px thumbnails, while the rights to those images are being checked. The front page's link preview uses `img/previews/ortelius-1570.jpg`, with its size written in `index.html` (`og:image:width` and `og:image:height`); change those if the preview is made at another size.
+
 Run it locally (the pages fetch their data, so they need a web server):
 
 ```bash
@@ -54,6 +56,7 @@ Publish it: enable **Settings → Pages → Source: GitHub Actions** once; `.git
 
 **mappingtartary.com** (since 2 Nov 2026) serves the same `demo/` folder from Cloudflare Workers as static files.
 - `wrangler.jsonc` names the Worker (`mapping-tartary`) and attaches `mappingtartary.com` and `www.mappingtartary.com` as custom domains. The domain was registered through Cloudflare Registrar for three years, and its zone is in the same Cloudflare account.
+- `www.mappingtartary.com` sends every request to the same path on `mappingtartary.com` with a 301, so search engines see one address. This is a Redirect Rule in the Cloudflare dashboard, not a file in this repository (Rules → "www to root", added 10 Nov 2026): `https://www.mappingtartary.com/*` → `https://mappingtartary.com/${1}`, query string kept. Keep `www.mappingtartary.com` in `wrangler.jsonc`, because the rule needs that hostname to exist.
 - `demo/.assetsignore` keeps `demo/private/` out of the upload. The upload list can be checked with `WRANGLER_LOG=debug npm run check`.
 - To deploy: `npm install` once, then `npm run deploy`. Wrangler signs in through the browser the first time.
 - GitHub Pages is not involved, so pushing to GitHub does not update the domain; run `npm run deploy` after each change.
