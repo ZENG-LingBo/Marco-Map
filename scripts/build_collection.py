@@ -23,9 +23,18 @@ from pathlib import Path
 
 from PIL import Image
 
-# Map ids (the existing site's map_id) to leave out of the public demo, e.g. the maps whose
-# rights are not yet cleared. Prof. Caboara was asked which ones on 29 Oct 2026.
-HIDDEN = []
+# Map ids (the existing site's map_id) to leave out of the public demo: the maps whose image
+# rights are not yet cleared. Prof. Caboara listed these seven on 25 Nov 2026; they come back
+# once the libraries' permission is in hand. Their tiles stay in project storage, unlinked.
+HIDDEN = [
+    164,  # Giovio 1525, Muscovy (Marciana)
+    170,  # Agnese 1554 (Marciana)
+    240,  # Buonsignori 1586
+    243,  # Buonsignori 1586
+    184,  # Freschot 1665, Tartary (Sylvia Ioannou Foundation)
+    196,  # Szpot 1690, after Antoine Thomas (ARSI)
+    215,  # Mortier 1715, Great Tartary (Shapero)
+]
 
 DEMO = Path(__file__).resolve().parent.parent / "demo"
 OUT = DEMO / "data" / "collection.json"
