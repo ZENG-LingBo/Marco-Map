@@ -175,6 +175,11 @@ input[type="range"] { accent-color: var(--accent); }
   white-space: nowrap; margin-bottom: 3px; z-index: 1;
 }
 .hidden { display: none !important; }
+/* "Hide annotations" (m): the map on its own, for looking at it closely. The box of the text being
+   read stays, so the tour and the index still show where it is. !important because OpenSeadragon
+   sets display inline on overlays. The label switch does nothing meanwhile, so it goes too. */
+.marks-off .pin, .marks-off .label-ovl, .marks-off .region:not(.is-active) { display: none !important; }
+.marks-off #labelsToggle, .marks-off .opacity-ctl { display: none; }
 
 .tooltip {
   position: absolute; z-index: 30; pointer-events: none; background: var(--ink); color: var(--paper);
@@ -282,7 +287,7 @@ input[type="range"] { accent-color: var(--accent); }
 
 /* Maps from the collection carry no annotations: no index, tour or label layer */
 .no-annotations #tourGroup, .no-annotations #tourStatus, .no-annotations #indexToggle,
-.no-annotations #labelsToggle, .no-annotations .opacity-ctl { display: none; }
+.no-annotations #labelsToggle, .no-annotations .opacity-ctl, .no-annotations #marksToggle { display: none; }
 .no-annotations .workspace { grid-template-columns: 0 1fr var(--panel-w); }
 .no-annotations .workspace.panel-closed { grid-template-columns: 0 1fr 0; }
 .no-annotations .index { display: none; }
@@ -440,6 +445,12 @@ body:not(.review-page) .region.is-approx { display: none !important; } /* OpenSe
   .index { display: none; }
   .index.is-open { display: block; position: absolute; inset: 0; z-index: 25; border-right: 0; }
   .stage-bar .opacity-ctl { display: none; }
+  /* the bar's buttons don't fit across a phone, so it scrolls sideways rather than wrapping onto a
+     second row (which would cover the overview, placed just above the bar) */
+  .stage-bar { overflow-x: auto; scrollbar-width: none; }
+  .stage-bar::-webkit-scrollbar { display: none; }
+  .stage-bar > * { flex-shrink: 0; }
+  .stage-bar #credit { max-width: 70vw; }  /* the image credit, cut short; "About this map" has it in full */
   .help { left: 1rem; right: 1rem; width: auto; }
 }
 @media (max-height: 500px) and (pointer: coarse) {

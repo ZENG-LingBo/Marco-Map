@@ -1,8 +1,8 @@
 /* Marco-Map demo viewer.
    Vanilla JavaScript on top of OpenSeadragon. Everything the page shows comes from
    data/catalogue.json and one map file (data/<map>.json). No build step.
-   Keyboard: , . previous/next annotation · p play/pause tour · l translated labels ·
-   e author mode · i index · f full screen · ? help · Esc close. */
+   Keyboard: , . previous/next annotation · p play/pause tour · m hide/show annotations ·
+   l translated labels · e author mode · i index · f full screen · ? help · Esc close. */
 (function () {
   'use strict';
 
@@ -19,7 +19,7 @@
 
   var state = {
     catalogue: null, map: null, viewId: null, viewer: null,
-    current: null, filter: 'all', labelsOn: false, labelOpacity: 0.92,
+    current: null, filter: 'all', marksOn: true, labelsOn: false, labelOpacity: 0.92,
     tour: { list: [], timer: null },
     author: { on: false, tracker: null, start: null, box: null },
     pending: null, vertical: false, els: {}
@@ -83,7 +83,7 @@
   /* ---------- Boot ---------- */
   function boot() {
     ['osd', 'indexList', 'filter', 'readingInner', 'viewSwitch', 'tourPrev', 'tourNext', 'tourPlay',
-      'tourStatus', 'labelsToggle', 'labelOpacity', 'zoomIn', 'zoomOut', 'zoomHome', 'help', 'helpToggle', 'helpClose',
+      'tourStatus', 'marksToggle', 'labelsToggle', 'labelOpacity', 'zoomIn', 'zoomOut', 'zoomHome', 'help', 'helpToggle', 'helpClose',
       'about', 'indexToggle', 'fullScreen', 'tooltip', 'toast', 'authorHint', 'stageNote', 'titleZh', 'titleEn',
       'mapSelect', 'workspace', 'index', 'stage', 'credit'
     ].forEach(function (id) { state.els[id] = document.getElementById(id); });
@@ -672,10 +672,23 @@
     });
   }
 
+  /* ---------- Annotations on or off ----------
+     Off shows the map itself, for looking at it closely: pins, boxes and labels are hidden by the
+     body's "marks-off" class (css/demo.css), apart from the box of the text being read. */
+  function toggleMarks(force) {
+    state.marksOn = force != null ? force : !state.marksOn;
+    document.body.classList.toggle('marks-off', !state.marksOn);
+    var b = state.els.marksToggle;
+    b.setAttribute('aria-pressed', String(!state.marksOn));
+    b.textContent = state.marksOn ? 'Hide annotations' : 'Show annotations';
+    if (!state.marksOn) hideTooltip();
+  }
+
   /* ---------- Labels layer ---------- */
   function toggleLabels(force) {
     state.labelsOn = force != null ? force : !state.labelsOn;
     state.els.labelsToggle.setAttribute('aria-pressed', String(state.labelsOn));
+    if (state.labelsOn && !state.marksOn) toggleMarks(true);  // labels asked for (key l) while annotations are hidden
     applyFilter();
   }
 
@@ -791,6 +804,7 @@
     e.tourPrev.addEventListener('click', function () { stopTour(); tourStep(-1); });
     e.tourNext.addEventListener('click', function () { stopTour(); tourStep(1); });
     e.tourPlay.addEventListener('click', playTour);
+    e.marksToggle.addEventListener('click', function () { toggleMarks(); });
     e.labelsToggle.addEventListener('click', function () { toggleLabels(); });
     e.labelOpacity.addEventListener('input', function () {
       state.labelOpacity = Number(e.labelOpacity.value);
@@ -824,6 +838,7 @@
         case '.': case ']': stopTour(); tourStep(1); break;
         case ',': case '[': stopTour(); tourStep(-1); break;
         case 'p': playTour(); break;
+        case 'm': toggleMarks(); break;
         case 'l': toggleLabels(); break;
         case 'e': toggleAuthor(); break;
         case 'i': toggleIndex(); break;
@@ -847,6 +862,6 @@
     });
   }
 
-  window.MarcoMapViewer = { state: state, select: select, openView: openView, toggleAuthor: toggleAuthor, toggleLabels: toggleLabels, tourStep: tourStep };
+  window.MarcoMapViewer = { state: state, select: select, openView: openView, toggleAuthor: toggleAuthor, toggleMarks: toggleMarks, toggleLabels: toggleLabels, tourStep: tourStep };
   document.addEventListener('DOMContentLoaded', boot);
 })();
