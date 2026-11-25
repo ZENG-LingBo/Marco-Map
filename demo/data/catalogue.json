@@ -36,6 +36,23 @@
       }
     },
     {
+      "id": "dejode-1593",
+      "page": "maps/dejode-1593/",
+      "file": "data/dejode-1593.json",
+      "title": {
+        "la": "China regnum",
+        "en": "The Kingdom of China"
+      },
+      "creator": "Cornelis de Jode",
+      "date": "Antwerp, 1593",
+      "repository": "Map: HKUST Library; text pages: Bibliothèque nationale de France",
+      "thumbnail": "img/dejode-1593-thumb.jpg",
+      "summary": "Reading edition. The 56 texts on the map (the four roundel captions from Jesuit reports, notes on the Great Wall, musk, Japan and Chinese learning, and the names of regions and peoples) and 314 place names, read from the HKUST copy by an AI model (Claude Opus 5.5), with the project team's own reading beside it where there is one; and the description “China quae et Sina” on the back, in the team's transcription and translation.",
+      "short": {
+        "en": "De Jode, China, 1593"
+      }
+    },
+    {
       "id": "speed-1626",
       "page": "maps/speed-1626/",
       "file": "data/speed-1626.json",
