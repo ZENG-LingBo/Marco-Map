@@ -1,6 +1,13 @@
 # Publishes demo/ to GitHub Pages.
 # Runs on pushes to main and on demand (Actions tab → "Run workflow"). The configure-pages step
 # enables Pages for the repository on first use, so no manual Settings → Pages step is needed.
+#
+# Upload and deploy are separate jobs. GitHub's artifact list can take a few seconds to show an
+# artifact that was just uploaded, so deploy-pages run straight after the upload in the same job
+# sometimes finds nothing ("No artifacts named github-pages", actions/deploy-pages#451; twice here
+# on 25 Nov 2026). The deploy job starts only after the upload job has finished, and it tries once
+# more after a pause. If it still fails, "Re-run failed jobs" repeats only the deploy: re-running
+# the upload would add a second github-pages artifact, which deploy-pages refuses.
 name: Deploy demo to GitHub Pages
 
 on:
@@ -19,18 +26,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/configure-pages@v6
+        with:
+          enablement: true
+      # demo/'s only dotfile is .assetsignore, which is for Wrangler, so v5 leaving dotfiles out is fine
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: demo
+
   deploy:
+    needs: upload
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.retry.outputs.page_url || steps.first.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-        with:
-          enablement: true
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: demo
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - id: first
+        uses: actions/deploy-pages@v5
+        continue-on-error: true
+      - if: steps.first.outcome == 'failure'
+        run: sleep 30
+      - id: retry
+        if: steps.first.outcome == 'failure'
+        uses: actions/deploy-pages@v5
