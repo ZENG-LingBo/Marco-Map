@@ -19,9 +19,10 @@
   var viewById = function (id) { return map.views.filter(function (v) { return v.id === id; })[0]; };
 
   fetch('data/catalogue.json').then(function (r) { return r.json(); }).then(function (cat) {
-    var entry = cat.maps.filter(function (m) { return m.id === qs.get('map'); })[0] || cat.maps[0];
+    var stories = cat.maps.filter(function (m) { return m.story; });
+    var entry = stories.filter(function (m) { return m.id === qs.get('map'); })[0] || stories[0];
     var sel = document.getElementById('storySelect');
-    cat.maps.forEach(function (m) {
+    stories.forEach(function (m) {
       var o = el('option', null, (m.short && m.short.en) || m.title.en); o.value = m.id; if (m.id === entry.id) o.selected = true; sel.appendChild(o);
     });
     sel.addEventListener('change', function () { location.search = '?map=' + sel.value; });
@@ -35,7 +36,7 @@
   });
 
   function build() {
-    document.title = map.story.title.en + ' · Marco-Map demo';
+    document.title = map.story.title.en + ' · Mapping Tartary';
     var text = document.getElementById('storyText');
     var h1 = el('h1');
     var zh = el('span', 'zh', map.story.title.zh); zh.lang = 'zh';
@@ -71,13 +72,18 @@
     end.appendChild(back);
     text.appendChild(end);
 
+    // cooperative gestures: the map sits in a scrolling page, so on a touch screen one finger
+    // scrolls the narrative and two fingers move the map (the wheel only scrolls the page)
     viewer = OpenSeadragon({
       id: 'osd', prefixUrl: OSD_IMAGES, showNavigationControl: false, showNavigator: false,
       animationTime: 1.8, springStiffness: 5, visibilityRatio: 0.5, minZoomImageRatio: 0.6, maxZoomPixelRatio: 3,
+      cooperativeGestures: true,
       gestureSettingsMouse: { clickToZoom: false, dblClickToZoom: true, scrollToZoom: false },
       gestureSettingsTouch: { clickToZoom: false },
       crossOriginPolicy: 'Anonymous', ajaxWithCredentials: false
     });
+    // the narrative moves the map, so a reader scrolling over it is not told how to move it
+    viewer.addHandler('canvas-cooperative-gesture', function (e) { e.preventDefaultAction = true; });
 
     var mobile = window.matchMedia('(max-width: 768px)').matches;
     var io = new IntersectionObserver(function (entries) {
@@ -101,7 +107,7 @@
     pad = pad == null ? 0.4 : pad;
     var rect = viewer.viewport.imageToViewportRectangle(
       new OpenSeadragon.Rect(r.x - r.w * pad, r.y - r.h * pad, r.w * (1 + 2 * pad), r.h * (1 + 2 * pad)));
-    viewer.viewport.fitBounds(rect, false);
+    viewer.viewport.fitBoundsWithConstraints(rect, false);
   }
   function showRegion(r) {
     var rect = viewer.viewport.imageToViewportRectangle(new OpenSeadragon.Rect(r.x, r.y, r.w, r.h));

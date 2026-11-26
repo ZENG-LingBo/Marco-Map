@@ -1,0 +1,16 @@
+{
+  "name": "marco-map",
+  "private": true,
+  "description": "Mapping Tartary: reading editions of historical maps of Tartary, and the plan and tools behind them (HKUST).",
+  "scripts": {
+    "check": "wrangler deploy --dry-run",
+    "deploy": "wrangler deploy"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZENG-LingBo/Marco-Map.git"
+  },
+  "devDependencies": {
+    "wrangler": "^4.156.1"
+  }
+}

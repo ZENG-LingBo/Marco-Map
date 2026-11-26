@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- a vermilion seal holding a map pin's ring, in the site's colours -->
+  <rect width="32" height="32" rx="6" fill="#b3402a"/>
+  <circle cx="16" cy="16" r="8.5" fill="none" stroke="#f7f4ee" stroke-width="3.5"/>
+</svg>

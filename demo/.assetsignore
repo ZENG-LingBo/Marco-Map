@@ -1,0 +1,6 @@
+# Files Wrangler must not upload to Cloudflare (same format as .gitignore).
+# Maps whose image rights are not cleared: local review only.
+private/
+# Draft essay "What was Tartary?" (demo/tartary/), until Prof. Caboara approves it; publishing steps are at the top of that file.
+/tartary/
+.assetsignore

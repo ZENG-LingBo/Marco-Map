@@ -1,0 +1,15 @@
+{
+	// The public site, served by Cloudflare Workers as static files from demo/ at mappingtartary.com.
+	// GitHub Pages (.github/workflows/pages.yml) still publishes the same folder at zeng-lingbo.github.io.
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "mapping-tartary",
+	"compatibility_date": "2026-11-02",
+	"assets": {
+		// demo/.assetsignore keeps demo/private/ (maps whose image rights are not cleared) out of the upload
+		"directory": "./demo"
+	},
+	"routes": [
+		{ "pattern": "mappingtartary.com", "custom_domain": true },
+		{ "pattern": "www.mappingtartary.com", "custom_domain": true }
+	]
+}
