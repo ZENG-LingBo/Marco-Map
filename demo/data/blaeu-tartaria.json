@@ -6,19 +6,19 @@
   "en": "Tartary, or the Empire of the Great Khan"
  },
  "short": {
-  "en": "Blaeu, Tartary, 1630s"
+  "en": "Blaeu, Tartary, 1634"
  },
  "creator": "Willem Janszoon Blaeu (1571–1638)",
- "date": "Amsterdam, 1630s (Blaeu's atlas)",
+ "date": "Amsterdam, 1634 (Blaeu's Latin atlas)",
  "notice": "Machine transcription and translation (Claude Opus 5.5, 26 Nov 2026), not yet reviewed by a specialist. [?] marks an uncertain reading. The text on the back was compared with the project's transcription of another copy; the texts on the map have not been checked yet.",
  "catalogue": {
   "repository": "Map: David Rumsey Map Collection. Text pages: Biblioteca Nacional de España",
-  "reference": "From Willem Janszoon Blaeu's Latin atlas (Amsterdam). The map copy is catalogued as 1634; the text pages come from a later Latin edition in the BNE, catalogued as 1646",
+  "reference": "From Willem Janszoon Blaeu's Latin atlas (Amsterdam, 1634). The text pages come from a later Latin edition in the BNE, labelled 1646",
   "extent": "Map, and the description “Tartaria” printed on the back (two pages)",
   "digitised": "Map 8,964 × 6,705 px (David Rumsey Map Collection); text pages from the BNE's scan (Biblioteca Digital Hispánica)",
   "credit": "Map: David Rumsey Map Collection, David Rumsey Map Center, Stanford Libraries (CC BY-NC-SA) · Text pages: Biblioteca Nacional de España (CC BY)"
  },
- "description": "Willem Janszoon Blaeu's map of Tartary, from his Latin atlas of the 1630s. It runs from Muscovy and the Caspian to the China Sea, with a camel carrying the title, and notes on Gog and Magog, the Christian kingdom of Tenduc in Marco Polo's day, the tombs of the Tartar kings on Mount Alchai, Cambalu, the rhubarb of Tangut, the illusions of the desert of Lop and the Great Wall.\nAn AI model, Claude Opus 5.5, read the map from the David Rumsey Map Collection copy without any reference text: 69 texts, notes and names, which can be read in the panel and the tour, and 386 place names, shown under “Towns, rivers and lakes” in the filter.\nTurn the sheet over for the atlas's description of Tartary, read by the same model from the Biblioteca Nacional de España copy, in passages that follow its printed margin notes. It was compared with the project's transcription of another copy.",
+ "description": "Willem Janszoon Blaeu's map of Tartary, from his Latin atlas (Amsterdam, 1634). It runs from Muscovy and the Caspian to the China Sea, with a camel carrying the title, and notes on Gog and Magog, the Christian kingdom of Tenduc in Marco Polo's day, the tombs of the Tartar kings on Mount Alchai, Cambalu, the rhubarb of Tangut, the illusions of the desert of Lop and the Great Wall.\nAn AI model, Claude Opus 5.5, read the map from the David Rumsey Map Collection copy without any reference text: 69 texts, notes and names, which can be read in the panel and the tour, and 386 place names, shown under “Towns, rivers and lakes” in the filter.\nTurn the sheet over for the atlas's description of Tartary, read by the same model from the Biblioteca Nacional de España copy, in passages that follow its printed margin notes. It was compared with the project's transcription of another copy.",
  "quiet": [
   "placename"
  ],
