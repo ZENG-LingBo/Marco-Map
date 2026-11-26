@@ -53,6 +53,40 @@
       }
     },
     {
+      "id": "ortelius-1570-russia",
+      "page": "maps/ortelius-1570-russia/",
+      "file": "data/ortelius-1570-russia.json",
+      "title": {
+        "la": "Russiae, Moscoviae et Tartariae descriptio",
+        "en": "Russia, Muscovy and Tartary"
+      },
+      "creator": "Abraham Ortelius, after Anthony Jenkinson",
+      "date": "Antwerp, 1570",
+      "repository": "Map: David Rumsey Map Collection; text page: Biblioteca Nacional de España",
+      "thumbnail": "img/ortelius-1570-russia-thumb.jpg",
+      "summary": "Reading edition. The 63 texts on Jenkinson's map (Ivan IV, the golden idol Zlata Baba, the horde turned to stone, the Kirghiz, Samarkand and the road to Cathay) and 205 place names, read from the David Rumsey Map Collection copy by an AI model (Claude Opus 5.5) and compared with van den Broecke's edition; and Ortelius's description of Russia on the back, from the 1595 Latin edition.",
+      "short": {
+        "en": "Ortelius, Russia, 1570"
+      }
+    },
+    {
+      "id": "blaeu-tartaria",
+      "page": "maps/blaeu-tartaria/",
+      "file": "data/blaeu-tartaria.json",
+      "title": {
+        "la": "Tartaria sive Magni Chami Imperium",
+        "en": "Tartary, or the Empire of the Great Khan"
+      },
+      "creator": "Willem Janszoon Blaeu",
+      "date": "Amsterdam, 1630s",
+      "repository": "Map: David Rumsey Map Collection; text pages: Biblioteca Nacional de España",
+      "thumbnail": "img/blaeu-tartaria-thumb.jpg",
+      "summary": "Reading edition. The 69 texts on the map (Gog and Magog, Christian Tenduc, the tombs of the khans, Cambalu, the Great Wall) and 386 place names, read from the David Rumsey Map Collection copy by an AI model (Claude Opus 5.5); and the atlas's description of Tartary on the back, from the Biblioteca Nacional de España copy.",
+      "short": {
+        "en": "Blaeu, Tartary, 1630s"
+      }
+    },
+    {
       "id": "speed-1626",
       "page": "maps/speed-1626/",
       "file": "data/speed-1626.json",
